@@ -1,0 +1,14 @@
+[project]
+name = "envoic"
+version = "0.0.1"
+description = "Swiss knife to manage our python environments and node modules"
+readme = "README.md"
+authors = [
+    { name = "Mahimai Raja J", email = "hello@mahimai.dev" }
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
