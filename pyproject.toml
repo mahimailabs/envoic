@@ -30,7 +30,7 @@ dependencies = [
 rich = ["rich>=13.0.0"]
 
 [project.scripts]
-envoic = "envoic.cli:app"
+envoic = "envoic.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/mahimailabs/envoic"

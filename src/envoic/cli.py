@@ -156,5 +156,10 @@ def version() -> None:
     typer.echo(__version__)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console-script entrypoint."""
     app()
+
+
+if __name__ == "__main__":
+    main()
