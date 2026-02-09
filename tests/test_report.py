@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from envoic.models import EnvInfo, EnvType, ScanResult
@@ -12,7 +12,7 @@ def test_format_size() -> None:
 
 
 def test_format_age() -> None:
-    now = datetime(2026, 2, 9, tzinfo=timezone.utc)
+    now = datetime(2026, 2, 9, tzinfo=UTC)
     assert format_age(now - timedelta(days=12), now=now) == "12d"
     assert format_age(now - timedelta(days=90), now=now) == "3mo"
 
@@ -28,7 +28,7 @@ def test_format_report_structure() -> None:
         env_type=EnvType.VENV,
         python_version="3.12.1",
         size_bytes=1024 * 1024,
-        modified=datetime.now(timezone.utc),
+        modified=datetime.now(UTC),
     )
     result = ScanResult(
         scan_path=Path("/tmp"),
@@ -37,7 +37,7 @@ def test_format_report_structure() -> None:
         environments=[env],
         total_size_bytes=1024 * 1024,
         hostname="host-a",
-        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=timezone.utc),
+        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=UTC),
     )
 
     text = format_report(result)

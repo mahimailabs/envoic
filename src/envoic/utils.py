@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -27,9 +27,9 @@ def format_age(moment: datetime | None, now: datetime | None = None) -> str:
     if moment is None:
         return "-"
     if now is None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
-    delta = now - moment.astimezone(timezone.utc)
+    delta = now - moment.astimezone(UTC)
     days = max(0, delta.days)
     if days < 30:
         return f"{days}d"

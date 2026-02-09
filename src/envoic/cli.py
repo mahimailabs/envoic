@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import socket
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import typer
@@ -52,7 +52,7 @@ def _build_scan_result(
         environments=sorted(envs, key=lambda item: str(item.path)),
         total_size_bytes=total_size_bytes,
         hostname=socket.gethostname(),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -72,11 +72,21 @@ def _print_output(text: str, use_rich: bool) -> None:
 def scan(
     path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
     depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
-    deep: bool = typer.Option(False, "--deep", help="Compute size and package metadata."),
-    json_output: bool = typer.Option(False, "--json", help="Output JSON report.", rich_help_panel="Output"),
-    stale_days: int = typer.Option(90, "--stale-days", min=1, help="Mark env as stale after N days."),
-    include_dotenv: bool = typer.Option(False, "--include-dotenv", help="Include plain .env directories."),
-    rich_output: bool = typer.Option(False, "--rich", help="Use optional rich-rendered output."),
+    deep: bool = typer.Option(
+        False, "--deep", help="Compute size and package metadata."
+    ),
+    json_output: bool = typer.Option(
+        False, "--json", help="Output JSON report.", rich_help_panel="Output"
+    ),
+    stale_days: int = typer.Option(
+        90, "--stale-days", min=1, help="Mark env as stale after N days."
+    ),
+    include_dotenv: bool = typer.Option(
+        False, "--include-dotenv", help="Include plain .env directories."
+    ),
+    rich_output: bool = typer.Option(
+        False, "--rich", help="Use optional rich-rendered output."
+    ),
 ) -> None:
     """Scan a filesystem path for Python environments."""
     result = _build_scan_result(
@@ -94,14 +104,22 @@ def scan(
     _print_output(format_report(result), use_rich=rich_output)
 
 
-@app.command()
-def list(
+@app.command(name="list")
+def list_environments(
     path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
     depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
-    deep: bool = typer.Option(False, "--deep", help="Compute size and package metadata."),
-    stale_days: int = typer.Option(90, "--stale-days", min=1, help="Mark env as stale after N days."),
-    include_dotenv: bool = typer.Option(False, "--include-dotenv", help="Include plain .env directories."),
-    rich_output: bool = typer.Option(False, "--rich", help="Use optional rich-rendered output."),
+    deep: bool = typer.Option(
+        False, "--deep", help="Compute size and package metadata."
+    ),
+    stale_days: int = typer.Option(
+        90, "--stale-days", min=1, help="Mark env as stale after N days."
+    ),
+    include_dotenv: bool = typer.Option(
+        False, "--include-dotenv", help="Include plain .env directories."
+    ),
+    rich_output: bool = typer.Option(
+        False, "--rich", help="Use optional rich-rendered output."
+    ),
 ) -> None:
     """Print a compact environments table."""
     result = _build_scan_result(
@@ -117,7 +135,9 @@ def list(
 @app.command()
 def info(
     env_path: Path = typer.Argument(..., exists=True, file_okay=False, dir_okay=True),
-    rich_output: bool = typer.Option(False, "--rich", help="Use optional rich-rendered output."),
+    rich_output: bool = typer.Option(
+        False, "--rich", help="Use optional rich-rendered output."
+    ),
 ) -> None:
     """Show detailed information for one environment."""
     env = detect_environment(env_path, deep=True)

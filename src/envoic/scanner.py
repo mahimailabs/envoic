@@ -29,7 +29,7 @@ def scan(root: Path, max_depth: int = 5) -> list[Path]:
 
         try:
             with os.scandir(current) as it:
-                entries = [entry for entry in it]
+                entries = list(it)
         except OSError:
             return
 

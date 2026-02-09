@@ -4,14 +4,14 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, TypedDict, cast, overload
 
 
-class EnvType(str, Enum):
-    VENV = "venv"
-    CONDA = "conda"
-    DOTENV_DIR = "dotenv_dir"
-    UNKNOWN = "unknown"
+class EnvType(Enum):
+    VENV: str = "venv"
+    CONDA: str = "conda"
+    DOTENV_DIR: str = "dotenv_dir"
+    UNKNOWN: str = "unknown"
 
 
 @dataclass(slots=True)
@@ -39,6 +39,32 @@ class ScanResult:
     timestamp: datetime
 
 
+EnvTypeValue = Literal["venv", "conda", "dotenv_dir", "unknown"]
+
+
+class EnvInfoDict(TypedDict):
+    path: str
+    env_type: EnvTypeValue
+    python_version: str | None
+    size_bytes: int | None
+    created: str | None
+    modified: str | None
+    package_count: int | None
+    is_stale: bool
+    has_pyvenv_cfg: bool
+    signals: list[str]
+
+
+class ScanResultDict(TypedDict):
+    scan_path: str
+    scan_depth: int
+    duration_seconds: float
+    environments: list[EnvInfoDict]
+    total_size_bytes: int
+    hostname: str
+    timestamp: str
+
+
 def _serialize_value(value: Any) -> Any:
     if isinstance(value, Path):
         return str(value)
@@ -53,5 +79,18 @@ def _serialize_value(value: Any) -> Any:
     return value
 
 
-def to_serializable_dict(data: ScanResult | EnvInfo) -> dict[str, Any]:
-    return _serialize_value(asdict(data))
+def _to_serializable_dict(data: ScanResult | EnvInfo) -> dict[str, Any]:
+    return cast(dict[str, Any], _serialize_value(asdict(data)))
+
+
+@overload
+def to_serializable_dict(data: EnvInfo) -> EnvInfoDict: ...
+
+
+@overload
+def to_serializable_dict(data: ScanResult) -> ScanResultDict: ...
+
+
+def to_serializable_dict(data: EnvInfo | ScanResult) -> EnvInfoDict | ScanResultDict:
+    serialized = _to_serializable_dict(data)
+    return cast(EnvInfoDict | ScanResultDict, serialized)

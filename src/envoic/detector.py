@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from .models import EnvInfo, EnvType
@@ -109,7 +109,10 @@ def _python_executable(path: Path) -> Path | None:
 
 
 def _has_activate_script(path: Path) -> bool:
-    return any(candidate.is_file() for candidate in (path / "bin" / "activate", path / "Scripts" / "activate"))
+    return any(
+        candidate.is_file()
+        for candidate in (path / "bin" / "activate", path / "Scripts" / "activate")
+    )
 
 
 def _calculate_size_bytes(path: Path) -> int:
@@ -208,11 +211,11 @@ def detect_environment(
     elif basename == ".env":
         env_type = EnvType.DOTENV_DIR
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     try:
         stat = path.stat()
-        created = datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc)
-        modified = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+        created = datetime.fromtimestamp(stat.st_ctime, tz=UTC)
+        modified = datetime.fromtimestamp(stat.st_mtime, tz=UTC)
     except OSError:
         created = None
         modified = None

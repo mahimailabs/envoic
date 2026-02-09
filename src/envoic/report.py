@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
-
-from .models import EnvInfo, EnvType, ScanResult
+from .models import EnvInfo, ScanResult
 from .utils import bar_chart, format_age, format_size, shorten_path
 
 REPORT_WIDTH = 58
@@ -67,7 +65,9 @@ def _size_distribution(environments: list[EnvInfo]) -> str:
     return "\n".join(lines)
 
 
-def format_report(result: ScanResult, *, title: str = "ENVOIC - Python Environment Report") -> str:
+def format_report(
+    result: ScanResult, *, title: str = "ENVOIC - Python Environment Report"
+) -> str:
     stale_count = sum(1 for env in result.environments if env.is_stale)
 
     lines: list[str] = []
@@ -107,7 +107,9 @@ def format_report(result: ScanResult, *, title: str = "ENVOIC - Python Environme
 
 def format_list(environments: list[EnvInfo]) -> str:
     lines = [_table_header(), "─" * 58]
-    for index, env in enumerate(sorted(environments, key=lambda item: str(item.path)), start=1):
+    for index, env in enumerate(
+        sorted(environments, key=lambda item: str(item.path)), start=1
+    ):
         lines.append(_table_row(index, env))
     if len(lines) == 2:
         lines.append("  (no environments found)")
@@ -124,8 +126,17 @@ def format_info(env: EnvInfo, top_packages: list[str], activation: str) -> str:
     lines.append(_row("Python", env.python_version or "-"))
     lines.append(_row("Size", format_size(env.size_bytes)))
     lines.append(_row("Packages", str(env.package_count or 0)))
-    lines.append(_row("Modified", env.modified.strftime("%Y-%m-%d %H:%M:%S") if env.modified else "-"))
-    lines.append(_row("Created", env.created.strftime("%Y-%m-%d %H:%M:%S") if env.created else "-"))
+    lines.append(
+        _row(
+            "Modified",
+            env.modified.strftime("%Y-%m-%d %H:%M:%S") if env.modified else "-",
+        )
+    )
+    lines.append(
+        _row(
+            "Created", env.created.strftime("%Y-%m-%d %H:%M:%S") if env.created else "-"
+        )
+    )
     lines.append(_row("Activate", activation))
     lines.append(_box_bottom())
     lines.append("")
