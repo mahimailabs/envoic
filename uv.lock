@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.11"
+requires-python = ">=3.11, <4"
 
 [[package]]
 name = "cfgv"
@@ -43,7 +43,6 @@ wheels = [
 
 [[package]]
 name = "envoic"
-version = "0.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "typer" },

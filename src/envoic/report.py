@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Literal
+
 from .models import EnvInfo, ScanResult
 from .utils import bar_chart, format_age, format_size, shorten_path
 
 REPORT_WIDTH = 58
+ENV_DIR_NAMES = {".env", ".venv", "env", "venv", ".virtualenv", "virtualenv"}
+PathMode = Literal["name", "relative", "absolute"]
 
 
 def _box_top(width: int = REPORT_WIDTH) -> str:
@@ -34,18 +39,59 @@ def _table_header() -> str:
     return f"  {'#':<3} {'Path':<30} {'Python':<8} {'Size':>6} {'Age':>5}"
 
 
-def _table_row(index: int, env: EnvInfo) -> str:
+def _truncate_text(text: str, width: int) -> str:
+    if len(text) <= width:
+        return text
+    keep = width - 3
+    prefix = keep // 2
+    suffix = keep - prefix
+    return f"{text[:prefix]}...{text[-suffix:]}"
+
+
+def _environment_label(
+    env_path: Path,
+    width: int,
+    *,
+    path_mode: PathMode,
+    base_path: Path | None = None,
+) -> str:
+    if path_mode == "absolute":
+        return _truncate_text(str(env_path), width)
+
+    if path_mode == "relative":
+        if base_path is not None:
+            try:
+                return _truncate_text(str(env_path.relative_to(base_path)), width)
+            except ValueError:
+                pass
+        return _truncate_text(str(env_path), width)
+
+    name = env_path.name
+    if name in ENV_DIR_NAMES and env_path.parent.name:
+        name = env_path.parent.name
+    return _truncate_text(name, width)
+
+
+def _table_row(
+    index: int,
+    env: EnvInfo,
+    *,
+    path_mode: PathMode,
+    base_path: Path | None = None,
+) -> str:
     stale = " STALE" if env.is_stale else ""
     return (
         f"  {index:<3} "
-        f"{shorten_path(env.path, 30):<30} "
+        f"{_environment_label(env.path, 30, path_mode=path_mode, base_path=base_path):<30} "
         f"{(env.python_version or '-'): <8} "
         f"{format_size(env.size_bytes):>6} "
         f"{format_age(env.modified):>5}{stale}"
     )
 
 
-def _size_distribution(environments: list[EnvInfo]) -> str:
+def _size_distribution(
+    environments: list[EnvInfo], *, path_mode: PathMode, base_path: Path | None = None
+) -> str:
     lines: list[str] = ["SIZE DISTRIBUTION"]
     if not environments:
         lines.append("  (no environments)")
@@ -60,13 +106,16 @@ def _size_distribution(environments: list[EnvInfo]) -> str:
     for env in sized:
         size = env.size_bytes or 0
         lines.append(
-            f"  {bar_chart(size, max_size, width=24)} {shorten_path(env.path, 24):<24} {format_size(size):>6}"
+            f"  {bar_chart(size, max_size, width=24)} {_environment_label(env.path, 24, path_mode=path_mode, base_path=base_path):<24} {format_size(size):>6}"
         )
     return "\n".join(lines)
 
 
 def format_report(
-    result: ScanResult, *, title: str = "ENVOIC - Python Environment Report"
+    result: ScanResult,
+    *,
+    title: str = "ENVOIC - Python Environment Report",
+    path_mode: PathMode = "name",
 ) -> str:
     stale_count = sum(1 for env in result.environments if env.is_stale)
 
@@ -96,21 +145,37 @@ def format_report(
     else:
         sorted_envs = sorted(result.environments, key=lambda item: str(item.path))
         for index, env in enumerate(sorted_envs, start=1):
-            lines.append(_table_row(index, env))
+            lines.append(
+                _table_row(
+                    index,
+                    env,
+                    path_mode=path_mode,
+                    base_path=result.scan_path,
+                )
+            )
 
     lines.append("─" * 58)
     lines.append("")
-    lines.append(_size_distribution(result.environments))
+    lines.append(
+        _size_distribution(
+            result.environments, path_mode=path_mode, base_path=result.scan_path
+        )
+    )
 
     return "\n".join(lines)
 
 
-def format_list(environments: list[EnvInfo]) -> str:
+def format_list(
+    environments: list[EnvInfo],
+    *,
+    path_mode: PathMode = "name",
+    base_path: Path | None = None,
+) -> str:
     lines = [_table_header(), "─" * 58]
     for index, env in enumerate(
         sorted(environments, key=lambda item: str(item.path)), start=1
     ):
-        lines.append(_table_row(index, env))
+        lines.append(_table_row(index, env, path_mode=path_mode, base_path=base_path))
     if len(lines) == 2:
         lines.append("  (no environments found)")
     return "\n".join(lines)
