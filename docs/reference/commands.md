@@ -36,6 +36,31 @@ Prints a compact environments table without the full report wrapper.
 | `--path-mode` |  | `name` | Path column rendering: `name`, `relative`, `absolute` |
 | `--rich` |  | `false` | Use rich-rendered output |
 
+## `envoic manage [PATH]`
+
+Interactively select and delete environments.
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--depth` | `-d` | `5` | Maximum directory depth to scan |
+| `--stale-only` |  | `false` | Pre-select stale environments in selector |
+| `--stale-days` |  | `90` | Days threshold for stale marking |
+| `--dry-run` |  | `false` | Preview deletions without deleting |
+| `--yes` | `-y` | `false` | Skip typed confirmation (dangerous) |
+| `--deep` |  | `false` | Compute size and package metadata for selection view |
+
+## `envoic clean [PATH]`
+
+Delete stale environments without interactive selection.
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--depth` | `-d` | `5` | Maximum directory depth to scan |
+| `--stale-days` |  | `90` | Delete environments older than N days |
+| `--dry-run` |  | `false` | Preview deletions without deleting |
+| `--yes` | `-y` | `false` | Skip typed confirmation (dangerous) |
+| `--deep` |  | `true` | Compute size metadata for stale candidates |
+
 ## `envoic info <ENV_PATH>`
 
 Shows detailed information for one environment.

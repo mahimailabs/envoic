@@ -32,6 +32,7 @@ export default defineConfig({
           items: [
             { text: 'Scanning Environments', link: '/guide/scanning' },
             { text: 'Reading Reports', link: '/guide/reports' },
+            { text: 'Managing Environments', link: '/guide/managing' },
             { text: 'Configuration', link: '/guide/configuration' },
           ]
         }
