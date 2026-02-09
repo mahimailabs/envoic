@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import Any, Literal, TypedDict, cast, overload
 
 
-class EnvType(Enum):
-    VENV: str = "venv"
-    CONDA: str = "conda"
-    DOTENV_DIR: str = "dotenv_dir"
-    UNKNOWN: str = "unknown"
+class EnvType(str, Enum):
+    VENV = "venv"
+    CONDA = "conda"
+    DOTENV_DIR = "dotenv_dir"
+    UNKNOWN = "unknown"
 
 
 @dataclass(slots=True)
