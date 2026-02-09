@@ -1,36 +1,50 @@
 [project]
 name = "envoic"
-version = "0.0.2"
-description = "Swiss knife to manage your python environments and node modules"
+version = "0.0.3"
+description = "Discover and report Python virtual environments on your system"
 readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
 authors = [
-    { name = "Mahimai Raja J", email = "hello@mahimai.dev" }
+    { name = "Mahimai", email = "hello@mahimai.dev" },
 ]
-keywords = ["python", "node", "environment", "modules"]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Topic :: Software Development :: Build Tools",
-    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
 ]
-requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+rich = ["rich>=13.0.0"]
+
+[project.scripts]
+envoic = "envoic.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/mahimailabs/envoic"
+Repository = "https://github.com/mahimailabs/envoic"
+Issues = "https://github.com/mahimailabs/envoic/issues"
 
 [build-system]
 requires = ["uv_build>=0.8.15,<0.9.0"]
 build-backend = "uv_build"
 
-[project.urls]
-Homepage = "https://github.com/mahimailabs/envoic"
-Documentation = "https://github.com/mahimailabs/envoic#readme"
-Repository = "https://github.com/mahimailabs/envoic"
-Issues = "https://github.com/mahimailabs/envoic/issues"
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
 
 [tool.pyright]
-typeCheckingMode = "off" # typechecking handled by mypy
+typeCheckingMode = "off"
