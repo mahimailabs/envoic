@@ -11,7 +11,7 @@ import typer
 from . import __version__
 from .detector import activation_hint, detect_environment, list_top_packages
 from .models import EnvInfo, EnvType, ScanResult, to_serializable_dict
-from .report import format_info, format_list, format_report
+from .report import PathMode, format_info, format_list, format_report
 from .scanner import scan as scan_paths
 
 app = typer.Typer(help="Discover and report Python virtual environments.")
@@ -84,6 +84,11 @@ def scan(
     include_dotenv: bool = typer.Option(
         False, "--include-dotenv", help="Include plain .env directories."
     ),
+    path_mode: PathMode = typer.Option(
+        "name",
+        "--path-mode",
+        help="How to render environment path columns: name, relative, absolute.",
+    ),
     rich_output: bool = typer.Option(
         False, "--rich", help="Use optional rich-rendered output."
     ),
@@ -101,7 +106,7 @@ def scan(
         typer.echo(json.dumps(to_serializable_dict(result), indent=2))
         raise typer.Exit(0)
 
-    _print_output(format_report(result), use_rich=rich_output)
+    _print_output(format_report(result, path_mode=path_mode), use_rich=rich_output)
 
 
 @app.command(name="list")
@@ -117,6 +122,11 @@ def list_environments(
     include_dotenv: bool = typer.Option(
         False, "--include-dotenv", help="Include plain .env directories."
     ),
+    path_mode: PathMode = typer.Option(
+        "name",
+        "--path-mode",
+        help="How to render environment path columns: name, relative, absolute.",
+    ),
     rich_output: bool = typer.Option(
         False, "--rich", help="Use optional rich-rendered output."
     ),
@@ -129,7 +139,12 @@ def list_environments(
         stale_days=stale_days,
         include_dotenv=include_dotenv,
     )
-    _print_output(format_list(result.environments), use_rich=rich_output)
+    _print_output(
+        format_list(
+            result.environments, path_mode=path_mode, base_path=result.scan_path
+        ),
+        use_rich=rich_output,
+    )
 
 
 @app.command()
