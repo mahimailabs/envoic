@@ -82,8 +82,7 @@ Shows detailed information for one environment.
 ## `envoic version`
 
 ```bash
-❯ uvx envoic version
-0.0.4
+envoic version
 ```
 
 Prints the installed envoic version.

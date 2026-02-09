@@ -34,13 +34,14 @@ $ uvx envoic scan .
 
 ## 1. Scan
 
-Scan the current directory for Python virtual environments.And, with `--deep` flag, it will scan the subdirectories too.
+Scan the current directory for Python virtual environments.
+Use `--depth` to control recursion and `--deep` to include size/package metadata.
 
 <img src="assets/scan_sample.png" alt="envoic scan command output" width="900" />
 
 ## 2. List
 
-List the Python virtual environments in the current directory. And, with `--deep` flag, it will list the Python virtual environments in the subdirectories too.
+List discovered Python virtual environments in a compact table.
 
 <img src="assets/list_sample.png" alt="envoic list command output" width="900" />
 
