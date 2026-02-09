@@ -23,6 +23,8 @@ envoic scan . --json
 envoic scan . --path-mode relative
 ```
 
+![Scan command output](/scan_sample.png)
+
 ## `envoic list [PATH]`
 
 Prints a compact environments table without the full report wrapper.
@@ -35,6 +37,8 @@ Prints a compact environments table without the full report wrapper.
 | `--include-dotenv` |  | `false` | Include plain `.env` directories |
 | `--path-mode` |  | `name` | Path column rendering: `name`, `relative`, `absolute` |
 | `--rich` |  | `false` | Use rich-rendered output |
+
+![List command output](/list_sample.png)
 
 ## `envoic manage [PATH]`
 
@@ -49,6 +53,8 @@ Interactively select and delete environments.
 | `--yes` | `-y` | `false` | Skip typed confirmation (dangerous) |
 | `--deep` |  | `false` | Compute size and package metadata for selection view |
 
+![Manage command output](/manage_sample.png)
+
 ## `envoic clean [PATH]`
 
 Delete stale environments without interactive selection.
@@ -61,6 +67,8 @@ Delete stale environments without interactive selection.
 | `--yes` | `-y` | `false` | Skip typed confirmation (dangerous) |
 | `--deep` |  | `true` | Compute size metadata for stale candidates |
 
+![Clean command output](/clean_sample.png)
+
 ## `envoic info <ENV_PATH>`
 
 Shows detailed information for one environment.
@@ -69,6 +77,13 @@ Shows detailed information for one environment.
 |--------|-------|---------|-------------|
 | `--rich` |  | `false` | Use rich-rendered output |
 
+![Info command output](/info_sample.png)
+
 ## `envoic version`
+
+```bash
+❯ uvx envoic version
+0.0.4
+```
 
 Prints the installed envoic version.

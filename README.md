@@ -50,6 +50,18 @@ Get the information about the Python virtual environment in the current director
 
 <img src="assets/info_sample.png" alt="envoic info command output" width="900" />
 
+## 4. Manage
+
+Interactively select environments and delete the selected ones with confirmation.
+
+<img src="assets/manage_sample.png" alt="envoic manage command output" width="900" />
+
+## 5. Clean
+
+Delete stale environments in batch mode (supports `--dry-run` and confirmation).
+
+<img src="assets/clean_sample.png" alt="envoic clean command output" width="900" />
+
 ## Usage
 
 ```bash

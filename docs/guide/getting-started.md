@@ -42,19 +42,5 @@ envoic scan . --path-mode name
 
 ## Example Output
 
-```
-┌──────────────────────────────────────────────────────────┐
-│  ENVOIC - Python Environment Report                      │
-│  TR-200  Environment Scanner                             │
-├──────────────────────────────────────────────────────────┤
-│  Date                               2026-02-09 02:27:39  │
-│  Host                                               mac  │
-│  Scan Path                           ~/projects          │
-│  Scan Depth                                           5  │
-│  Duration                                         0.34s  │
-├──────────────────────────────────────────────────────────┤
-│  Envs Found                                           4  │
-│  Total Size                                       2.1G   │
-│  Stale >90d                                           1  │
-└──────────────────────────────────────────────────────────┘
-```
+
+![Scan command output](/scan_sample.png)

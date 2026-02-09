@@ -18,6 +18,10 @@ Flow:
 
 This command is intentionally conservative and requires explicit confirmation.
 
+### Example (`manage`)
+
+![Manage command output](/manage_sample.png)
+
 ## Safety guarantees
 
 - never deletes without explicit confirmation (unless `--yes` is provided)
@@ -45,3 +49,7 @@ envoic clean ~/projects
 envoic clean ~/projects --stale-days 180 --dry-run
 envoic clean ~/projects --yes
 ```
+
+### Example (`clean`)
+
+![Clean command output](/clean_sample.png)
