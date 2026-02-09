@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/envoic.png" width="1000" alt="envoic logo" />
+  <img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/envoic.png" width="1000" alt="envoic logo" />
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
   <a href="https://pypi.org/project/envoic/">
     <img alt="Python versions" src="https://img.shields.io/pypi/pyversions/envoic" />
   </a>
-  <a href="LICENSE">
+  <a href="https://github.com/mahimailabs/envoic/blob/main/LICENSE">
     <img alt="License" src="https://img.shields.io/github/license/mahimailabs/envoic" />
   </a>
   <a href="https://mahimailabs.github.io/envoic/">
@@ -55,31 +55,31 @@ $ uvx envoic scan .
 Scan the current directory for Python virtual environments.
 Use `--depth` to control recursion and `--deep` to include size/package metadata.
 
-<img src="assets/scan_sample.png" alt="envoic scan command output" width="900" />
+<img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/scan_sample.png" alt="envoic scan command output" width="900" />
 
 ## 2. List
 
 List discovered Python virtual environments in a compact table.
 
-<img src="assets/list_sample.png" alt="envoic list command output" width="900" />
+<img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/list_sample.png" alt="envoic list command output" width="900" />
 
 ## 3. Info
 
 Get the information about the Python virtual environment in the current directory.
 
-<img src="assets/info_sample.png" alt="envoic info command output" width="900" />
+<img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/info_sample.png" alt="envoic info command output" width="900" />
 
 ## 4. Manage
 
 Interactively select environments and delete the selected ones with confirmation.
 
-<img src="assets/manage_sample.png" alt="envoic manage command output" width="900" />
+<img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/manage_sample.png" alt="envoic manage command output" width="900" />
 
 ## 5. Clean
 
 Delete stale environments in batch mode (supports `--dry-run` and confirmation).
 
-<img src="assets/clean_sample.png" alt="envoic clean command output" width="900" />
+<img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/clean_sample.png" alt="envoic clean command output" width="900" />
 
 ## Usage
 
@@ -112,4 +112,4 @@ $ uv run python -m envoic.cli scan . --deep --path-mode name
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/mahimailabs/envoic/blob/main/LICENSE)
