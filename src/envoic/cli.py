@@ -10,6 +10,12 @@ import typer
 
 from . import __version__
 from .detector import activation_hint, detect_environment, list_top_packages
+from .manager import (
+    confirm_deletion,
+    delete_environments,
+    interactive_select,
+    print_deletion_report,
+)
 from .models import EnvInfo, EnvType, ScanResult, to_serializable_dict
 from .report import PathMode, format_info, format_list, format_report
 from .scanner import scan as scan_paths
@@ -169,6 +175,122 @@ def info(
 def version() -> None:
     """Print envoic version."""
     typer.echo(__version__)
+
+
+@app.command()
+def manage(
+    path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
+    depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
+    stale_only: bool = typer.Option(
+        False, "--stale-only", help="Pre-select only stale environments."
+    ),
+    stale_days: int = typer.Option(
+        90, "--stale-days", min=1, help="Mark env as stale after N days."
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be deleted without deleting."
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Skip final confirmation (dangerous)."
+    ),
+    deep: bool = typer.Option(
+        False, "--deep", help="Compute size and package metadata for selection view."
+    ),
+) -> None:
+    """Interactively select and delete Python environments."""
+    typer.echo(f"Scanning {path.resolve()}...")
+    result = _build_scan_result(
+        path,
+        depth,
+        deep=deep,
+        stale_days=stale_days,
+        include_dotenv=False,
+    )
+    if not result.environments:
+        typer.echo("No environments found.")
+        raise typer.Exit(0)
+
+    typer.echo("")
+    typer.echo(f"Found {len(result.environments)} Python environments.")
+    selected = interactive_select(result.environments, stale_only=stale_only)
+    if not selected:
+        typer.echo("Nothing selected.")
+        raise typer.Exit(0)
+
+    confirmed = confirm_deletion(selected, dry_run=dry_run, skip_confirm=yes)
+    if dry_run:
+        summary = delete_environments(
+            selected,
+            scan_root=result.scan_path,
+            dry_run=True,
+        )
+        print_deletion_report(summary, initial_total=len(result.environments))
+        raise typer.Exit(0)
+
+    if not confirmed:
+        typer.echo("Deletion cancelled.")
+        raise typer.Exit(0)
+
+    summary = delete_environments(
+        selected,
+        scan_root=result.scan_path,
+        dry_run=False,
+    )
+    print_deletion_report(summary, initial_total=len(result.environments))
+
+
+@app.command()
+def clean(
+    path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
+    depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
+    stale_days: int = typer.Option(
+        90, "--stale-days", min=1, help="Delete envs older than N days."
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be deleted without deleting."
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Skip final confirmation (dangerous)."
+    ),
+    deep: bool = typer.Option(
+        True, "--deep/--no-deep", help="Compute size metadata for stale candidates."
+    ),
+) -> None:
+    """Delete stale environments without interactive selection."""
+    typer.echo(f"Scanning {path.resolve()} for stale environments...")
+    result = _build_scan_result(
+        path,
+        depth,
+        deep=deep,
+        stale_days=stale_days,
+        include_dotenv=False,
+    )
+    selected = [env for env in result.environments if env.is_stale]
+    if not selected:
+        typer.echo("No stale environments found.")
+        raise typer.Exit(0)
+
+    typer.echo(f"Found {len(selected)} stale environments.")
+    confirmed = confirm_deletion(selected, dry_run=dry_run, skip_confirm=yes)
+    if dry_run:
+        summary = delete_environments(
+            selected,
+            scan_root=result.scan_path,
+            dry_run=True,
+        )
+        print_deletion_report(summary, initial_total=len(result.environments))
+        raise typer.Exit(0)
+
+    if not confirmed:
+        typer.echo("Deletion cancelled.")
+        raise typer.Exit(0)
+
+    summary = delete_environments(
+        selected,
+        scan_root=result.scan_path,
+        dry_run=False,
+    )
+    print_deletion_report(summary, initial_total=len(result.environments))
 
 
 def main() -> None:
