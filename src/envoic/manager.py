@@ -175,8 +175,14 @@ def interactive_select(
             if not selected:
                 return []
             return [environments[i] for i in selected]
-        except Exception:
+        except ImportError:
             pass
+        except KeyboardInterrupt as exc:
+            raise typer.Abort() from exc
+        except Exception:
+            typer.echo(
+                "(interactive selection unavailable, using text fallback)", err=True
+            )
 
     return _fallback_select(environments, scan_root=scan_root, stale_only=stale_only)
 
