@@ -44,3 +44,13 @@ envoic scan . --path-mode name
 
 
 ![Scan command output](/scan_sample.png)
+
+## Manage and Clean
+
+```bash
+# Interactive selection + delete flow
+envoic manage . --stale-only
+
+# Batch stale cleanup (preview first)
+envoic clean . --stale-days 180 --dry-run
+```

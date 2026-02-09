@@ -10,6 +10,9 @@ envoic scan ~/projects --depth 3
 
 Lower values scan faster and avoid broad filesystem walks.
 
+`--depth` controls *where* envoic looks.
+`--deep` controls *how much metadata* envoic collects for each found environment.
+
 ## Skipped directories
 
 Scanner traversal skips known noisy directories:
