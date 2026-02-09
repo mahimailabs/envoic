@@ -211,3 +211,8 @@ src/envoic/_version.py
 
 # OS generated files
 .DS_Store
+
+# VitePress docs
+docs/node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/

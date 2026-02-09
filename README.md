@@ -1,16 +1,15 @@
 # envoic
 
-`envoic` is a fast, opinionated CLI that discovers Python virtual environments and reports them in a clean, information-dense terminal layout.
+Discover Python virtual environments and report them in a compact terminal layout.
 
-## Quick Start
+> **Warning**
+>
+> `envoic` is still experimental and therefore subject to major changes across releases. Breaking changes may occur until `v1.0.0`.
 
-No install needed:
+- Docs: https://mahimailabs.github.io/envoic/
+- PyPI: https://pypi.org/project/envoic/
 
-```bash
-uvx envoic scan ~/projects
-```
-
-Or install permanently:
+## Install
 
 ```bash
 uv tool install envoic
@@ -18,7 +17,13 @@ uv tool install envoic
 pipx install envoic
 ```
 
-## Commands
+Run without installing:
+
+```bash
+uvx envoic scan .
+```
+
+## Usage
 
 ```bash
 envoic scan [PATH]
@@ -27,47 +32,22 @@ envoic info <ENV_PATH>
 envoic version
 ```
 
-### `scan`
+Common examples:
 
 ```bash
-envoic scan . --depth 5
-envoic scan ~/projects --deep
+envoic scan . --deep
 envoic scan . --json
-envoic scan . --include-dotenv
-envoic scan . --rich
-```
-
-Options:
-
-- `--depth`, `-d`: max scan depth (default: `5`)
-- `--deep`: compute size and package metadata
-- `--json`: output JSON
-- `--stale-days`: stale threshold in days (default: `90`)
-- `--include-dotenv`: include plain `.env` directories
-- `--rich`: optional rich-rendered output
-
-### `list`
-
-Compact table-only output:
-
-```bash
-envoic list .
-```
-
-### `info`
-
-Detailed report for one environment:
-
-```bash
+envoic scan . --path-mode name      # name | relative | absolute
+envoic list . --path-mode relative
 envoic info .venv
 ```
 
-## Development
+## Local Development
 
 ```bash
 uv sync --group dev
 uv run pytest
-uvx --from . envoic scan .
+uv run python -m envoic.cli scan . --deep --path-mode name
 ```
 
 ## License
