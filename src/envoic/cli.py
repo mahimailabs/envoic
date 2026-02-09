@@ -232,6 +232,7 @@ def manage(
             selected,
             scan_root=result.scan_path,
             dry_run=True,
+            dry_run_echo=False,
         )
         print_deletion_report(summary, initial_total=len(result.environments))
         raise typer.Exit(0)
@@ -291,6 +292,7 @@ def clean(
             selected,
             scan_root=result.scan_path,
             dry_run=True,
+            dry_run_echo=False,
         )
         print_deletion_report(summary, initial_total=len(result.environments))
         raise typer.Exit(0)
