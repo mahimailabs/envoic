@@ -8,6 +8,7 @@ import typer
 
 from envoic.manager import confirm_deletion, delete_environments
 from envoic.models import EnvInfo, EnvType
+from envoic.utils import format_env_display_path
 
 
 def _env(path: Path, *, stale: bool = False, size_bytes: int | None = None) -> EnvInfo:
@@ -95,10 +96,29 @@ def test_dry_run(tmp_path: Path) -> None:
 def test_confirm_deletion_requires_delete_word(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    env = _env(Path("/tmp/project/.venv"), size_bytes=1024)
+    scan_root = Path("/tmp")
+    env = _env(scan_root / "project" / ".venv", size_bytes=1024)
 
     monkeypatch.setattr(typer, "prompt", lambda *_args, **_kwargs: "no")
-    assert confirm_deletion([env], dry_run=False, skip_confirm=False) is False
+    assert (
+        confirm_deletion([env], scan_root=scan_root, dry_run=False, skip_confirm=False)
+        is False
+    )
 
     monkeypatch.setattr(typer, "prompt", lambda *_args, **_kwargs: "delete")
-    assert confirm_deletion([env], dry_run=False, skip_confirm=False) is True
+    assert (
+        confirm_deletion([env], scan_root=scan_root, dry_run=False, skip_confirm=False)
+        is True
+    )
+
+
+def test_format_env_display_path_relative_and_strip(tmp_path: Path) -> None:
+    scan_root = tmp_path / "root"
+    env_path = scan_root / "apollo-cash" / "app" / ".venv"
+    assert format_env_display_path(env_path, scan_root) == "apollo-cash/app"
+
+
+def test_format_env_display_path_root_edge(tmp_path: Path) -> None:
+    scan_root = tmp_path / "root"
+    env_path = scan_root / ".venv"
+    assert format_env_display_path(env_path, scan_root) == "."

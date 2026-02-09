@@ -71,7 +71,8 @@ def test_format_report_path_modes() -> None:
     abs_text = format_report(result, path_mode="absolute")
 
     assert "project" in name_text
-    assert "project/.venv" in rel_text
+    assert "project" in rel_text
+    assert "project/.venv" not in rel_text
     assert "/tmp/project/.venv" in abs_text
 
 
@@ -82,4 +83,5 @@ def test_format_list_relative_paths() -> None:
         python_version="3.12.1",
     )
     text = format_list([env], path_mode="relative", base_path=Path("/tmp"))
-    assert "project/.venv" in text
+    assert "project" in text
+    assert "project/.venv" not in text

@@ -3,6 +3,27 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+VENV_DIR_NAMES = {".env", ".venv", "env", "venv", ".virtualenv", "virtualenv"}
+
+
+def format_env_display_path(env_path: Path, scan_root: Path) -> str:
+    """Return env path relative to root and without trailing venv folder name."""
+    try:
+        rel = env_path.relative_to(scan_root)
+    except ValueError:
+        text = str(env_path)
+        home = str(Path.home())
+        if text.startswith(home):
+            return "~" + text[len(home) :]
+        return text
+
+    if rel.name in VENV_DIR_NAMES:
+        rel = rel.parent
+
+    if str(rel) in {"", "."}:
+        return "."
+    return str(rel)
+
 
 def format_size(num_bytes: int | None) -> str:
     if num_bytes is None:

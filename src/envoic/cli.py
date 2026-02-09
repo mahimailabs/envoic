@@ -212,12 +212,21 @@ def manage(
 
     typer.echo("")
     typer.echo(f"Found {len(result.environments)} Python environments.")
-    selected = interactive_select(result.environments, stale_only=stale_only)
+    selected = interactive_select(
+        result.environments,
+        scan_root=result.scan_path,
+        stale_only=stale_only,
+    )
     if not selected:
         typer.echo("Nothing selected.")
         raise typer.Exit(0)
 
-    confirmed = confirm_deletion(selected, dry_run=dry_run, skip_confirm=yes)
+    confirmed = confirm_deletion(
+        selected,
+        scan_root=result.scan_path,
+        dry_run=dry_run,
+        skip_confirm=yes,
+    )
     if dry_run:
         summary = delete_environments(
             selected,
@@ -271,7 +280,12 @@ def clean(
         raise typer.Exit(0)
 
     typer.echo(f"Found {len(selected)} stale environments.")
-    confirmed = confirm_deletion(selected, dry_run=dry_run, skip_confirm=yes)
+    confirmed = confirm_deletion(
+        selected,
+        scan_root=result.scan_path,
+        dry_run=dry_run,
+        skip_confirm=yes,
+    )
     if dry_run:
         summary = delete_environments(
             selected,
