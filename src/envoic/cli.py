@@ -74,6 +74,42 @@ def _print_output(text: str, use_rich: bool) -> None:
     typer.echo(text)
 
 
+def _confirm_and_delete(
+    selected: list[EnvInfo],
+    *,
+    scan_root: Path,
+    initial_total: int,
+    dry_run: bool,
+    yes: bool,
+) -> None:
+    confirmed = confirm_deletion(
+        selected,
+        scan_root=scan_root,
+        dry_run=dry_run,
+        skip_confirm=yes,
+    )
+    if dry_run:
+        summary = delete_environments(
+            selected,
+            scan_root=scan_root,
+            dry_run=True,
+            dry_run_echo=False,
+        )
+        print_deletion_report(summary, initial_total=initial_total)
+        raise typer.Exit(0)
+
+    if not confirmed:
+        typer.echo("Deletion cancelled.")
+        raise typer.Exit(0)
+
+    summary = delete_environments(
+        selected,
+        scan_root=scan_root,
+        dry_run=False,
+    )
+    print_deletion_report(summary, initial_total=initial_total)
+
+
 @app.command()
 def scan(
     path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
@@ -221,32 +257,13 @@ def manage(
         typer.echo("Nothing selected.")
         raise typer.Exit(0)
 
-    confirmed = confirm_deletion(
+    _confirm_and_delete(
         selected,
         scan_root=result.scan_path,
+        initial_total=len(result.environments),
         dry_run=dry_run,
-        skip_confirm=yes,
+        yes=yes,
     )
-    if dry_run:
-        summary = delete_environments(
-            selected,
-            scan_root=result.scan_path,
-            dry_run=True,
-            dry_run_echo=False,
-        )
-        print_deletion_report(summary, initial_total=len(result.environments))
-        raise typer.Exit(0)
-
-    if not confirmed:
-        typer.echo("Deletion cancelled.")
-        raise typer.Exit(0)
-
-    summary = delete_environments(
-        selected,
-        scan_root=result.scan_path,
-        dry_run=False,
-    )
-    print_deletion_report(summary, initial_total=len(result.environments))
 
 
 @app.command()
@@ -281,32 +298,13 @@ def clean(
         raise typer.Exit(0)
 
     typer.echo(f"Found {len(selected)} stale environments.")
-    confirmed = confirm_deletion(
+    _confirm_and_delete(
         selected,
         scan_root=result.scan_path,
+        initial_total=len(result.environments),
         dry_run=dry_run,
-        skip_confirm=yes,
+        yes=yes,
     )
-    if dry_run:
-        summary = delete_environments(
-            selected,
-            scan_root=result.scan_path,
-            dry_run=True,
-            dry_run_echo=False,
-        )
-        print_deletion_report(summary, initial_total=len(result.environments))
-        raise typer.Exit(0)
-
-    if not confirmed:
-        typer.echo("Deletion cancelled.")
-        raise typer.Exit(0)
-
-    summary = delete_environments(
-        selected,
-        scan_root=result.scan_path,
-        dry_run=False,
-    )
-    print_deletion_report(summary, initial_total=len(result.environments))
 
 
 def main() -> None:
