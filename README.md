@@ -2,6 +2,24 @@
   <img src="assets/envoic.png" width="1000" alt="envoic logo" />
 </p>
 
+<p align="center">
+  <a href="https://coderabbit.ai">
+    <img alt="CodeRabbit Pull Request Reviews" src="https://img.shields.io/coderabbit/prs/github/mahimailabs/envoic?utm_source=oss&utm_medium=github&utm_campaign=mahimailabs%2Fenvoic&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews" />
+  </a>
+  <a href="https://pypi.org/project/envoic/">
+    <img alt="PyPI version" src="https://img.shields.io/pypi/v/envoic" />
+  </a>
+  <a href="https://pypi.org/project/envoic/">
+    <img alt="Python versions" src="https://img.shields.io/pypi/pyversions/envoic" />
+  </a>
+  <a href="LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/mahimailabs/envoic" />
+  </a>
+  <a href="https://mahimailabs.github.io/envoic/">
+    <img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-222222?logo=githubpages" />
+  </a>
+</p>
+
 ---
 
 Discover Python virtual environments and report them in a compact terminal layout.
