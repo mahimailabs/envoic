@@ -57,6 +57,10 @@ $ envoic scan [PATH]
 
 $ envoic list [PATH]
 
+$ envoic manage [PATH]
+
+$ envoic clean [PATH]
+
 $ envoic info <ENV_PATH>
 
 $ envoic version
