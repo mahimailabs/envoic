@@ -1,10 +1,13 @@
-# envoic
+<img src="assets/envoic.png" width="500" />
+
+---
 
 Discover Python virtual environments and report them in a compact terminal layout.
 
-> **Warning**
->
+
+> [!WARNING]
 > `envoic` is still experimental and therefore subject to major changes across releases. Breaking changes may occur until `v1.0.0`.
+
 
 - Docs: https://mahimailabs.github.io/envoic/
 - PyPI: https://pypi.org/project/envoic/
