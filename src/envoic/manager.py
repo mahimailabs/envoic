@@ -229,6 +229,7 @@ def delete_environments(
     *,
     scan_root: Path,
     dry_run: bool = False,
+    dry_run_echo: bool = True,
 ) -> DeletionSummary:
     """Delete selected environments with path guards and symlink safety."""
     summary: DeletionSummary = {
@@ -256,9 +257,10 @@ def delete_environments(
         summary["would_free_bytes"] += size
 
         if dry_run:
-            typer.echo(
-                f"[dry-run] Would delete {format_env_display_path(path, scan_root)}"
-            )
+            if dry_run_echo:
+                typer.echo(
+                    f"[dry-run] Would delete {format_env_display_path(path, scan_root)}"
+                )
             continue
 
         if not path.exists() and not path.is_symlink():
