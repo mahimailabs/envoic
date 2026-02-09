@@ -9,7 +9,7 @@ from typing import TypedDict, cast
 import typer
 
 from .models import EnvInfo
-from .utils import format_age, format_size, shorten_path
+from .utils import format_age, format_env_display_path, format_size
 
 
 class DeletionSummary(TypedDict):
@@ -62,18 +62,30 @@ def _size_for_deletion(path: Path) -> int:
     return total
 
 
-def _choice_text(env: EnvInfo) -> str:
+def _column_width(display_paths: list[str]) -> int:
+    if not display_paths:
+        return 30
+    max_path_len = max(len(item) for item in display_paths)
+    return min(max(max_path_len + 2, 20), 50)
+
+
+def _table_header(path_width: int) -> str:
+    return f"{'Path':<{path_width}} {'Python':<8} {'Size':>6}  {'Age':>5}"
+
+
+def _choice_text(env: EnvInfo, *, scan_root: Path, path_width: int) -> str:
+    display_path = format_env_display_path(env.path, scan_root)
     stale = "  STALE" if env.is_stale else ""
     return (
-        f"{shorten_path(env.path, 42):<42} "
+        f"{display_path:<{path_width}} "
         f"{(env.python_version or '-'): <8} "
-        f"{format_size(env.size_bytes):>6} "
+        f"{format_size(env.size_bytes):>6}  "
         f"{format_age(env.modified):>5}{stale}"
     )
 
 
 def _fallback_select(
-    environments: list[EnvInfo], stale_only: bool = False
+    environments: list[EnvInfo], *, scan_root: Path, stale_only: bool = False
 ) -> list[EnvInfo]:
     typer.echo("")
     typer.echo(
@@ -81,9 +93,18 @@ def _fallback_select(
         "Enter numbers to delete (comma-separated):"
     )
     typer.echo("")
+    display_paths = [
+        format_env_display_path(env.path, scan_root) for env in environments
+    ]
+    path_width = _column_width(display_paths)
+    typer.echo(f"      {_table_header(path_width)}")
+    typer.echo(f"      {'-' * (path_width + 24)}")
     for idx, env in enumerate(environments, start=1):
         marker = "x" if stale_only and env.is_stale else " "
-        typer.echo(f"  {idx:<3} [{marker}] {_choice_text(env)}")
+        typer.echo(
+            f"  {idx:<3} [{marker}] "
+            f"{_choice_text(env, scan_root=scan_root, path_width=path_width)}"
+        )
 
     default = ""
     if stale_only:
@@ -115,24 +136,36 @@ def _fallback_select(
 
 
 def interactive_select(
-    environments: list[EnvInfo], stale_only: bool = False
+    environments: list[EnvInfo], *, scan_root: Path, stale_only: bool = False
 ) -> list[EnvInfo]:
     """Display an interactive checklist and return selected environments."""
     if not environments:
         return []
+
+    display_paths = [
+        format_env_display_path(env.path, scan_root) for env in environments
+    ]
+    path_width = _column_width(display_paths)
 
     is_interactive = sys.stdin.isatty() and sys.stdout.isatty()
     if is_interactive:
         try:
             import questionary
 
-            choices = [
+            header = _table_header(path_width)
+            rule = "-" * (path_width + 24)
+            env_choices = [
                 questionary.Choice(
-                    title=_choice_text(env),
+                    title=_choice_text(env, scan_root=scan_root, path_width=path_width),
                     value=index,
                     checked=stale_only and env.is_stale,
                 )
                 for index, env in enumerate(environments)
+            ]
+            choices = [
+                questionary.Separator(f"  {header}"),
+                questionary.Separator(f"  {rule}"),
+                *env_choices,
             ]
             selected = questionary.checkbox(
                 "Select environments to delete",
@@ -145,12 +178,13 @@ def interactive_select(
         except Exception:
             pass
 
-    return _fallback_select(environments, stale_only=stale_only)
+    return _fallback_select(environments, scan_root=scan_root, stale_only=stale_only)
 
 
 def confirm_deletion(
     selected: list[EnvInfo],
     *,
+    scan_root: Path,
     dry_run: bool = False,
     skip_confirm: bool = False,
 ) -> bool:
@@ -159,12 +193,17 @@ def confirm_deletion(
     typer.echo("⚠ The following environments will be PERMANENTLY DELETED:")
     typer.echo("")
 
+    display_paths = [format_env_display_path(env.path, scan_root) for env in selected]
+    path_width = _column_width(display_paths)
+
     total = 0
     for idx, env in enumerate(selected, start=1):
         size = env.size_bytes or 0
         total += size
         typer.echo(
-            f"  {idx:<3} {shorten_path(env.path, 42):<42} {format_size(size):>6}"
+            f"  {idx:<3} "
+            f"{format_env_display_path(env.path, scan_root):<{path_width}} "
+            f"{format_size(size):>6}"
         )
 
     typer.echo("")
@@ -217,7 +256,9 @@ def delete_environments(
         summary["would_free_bytes"] += size
 
         if dry_run:
-            typer.echo(f"[dry-run] Would delete {path}")
+            typer.echo(
+                f"[dry-run] Would delete {format_env_display_path(path, scan_root)}"
+            )
             continue
 
         if not path.exists() and not path.is_symlink():
@@ -225,7 +266,10 @@ def delete_environments(
             summary["skipped_count"] += 1
             continue
 
-        typer.echo(f"Deleting {path} ...", nl=False)
+        typer.echo(
+            f"Deleting {format_env_display_path(path, scan_root)} ...",
+            nl=False,
+        )
         try:
             if path.is_symlink():
                 path.unlink()

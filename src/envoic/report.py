@@ -4,10 +4,15 @@ from pathlib import Path
 from typing import Literal
 
 from .models import EnvInfo, ScanResult
-from .utils import bar_chart, format_age, format_size, shorten_path
+from .utils import (
+    bar_chart,
+    format_age,
+    format_env_display_path,
+    format_size,
+    shorten_path,
+)
 
 REPORT_WIDTH = 58
-ENV_DIR_NAMES = {".env", ".venv", "env", "venv", ".virtualenv", "virtualenv"}
 PathMode = Literal["name", "relative", "absolute"]
 
 
@@ -61,13 +66,18 @@ def _environment_label(
     if path_mode == "relative":
         if base_path is not None:
             try:
-                return _truncate_text(str(env_path.relative_to(base_path)), width)
-            except ValueError:
+                return _truncate_text(
+                    format_env_display_path(env_path, base_path), width
+                )
+            except (OSError, ValueError):
                 pass
         return _truncate_text(str(env_path), width)
 
     name = env_path.name
-    if name in ENV_DIR_NAMES and env_path.parent.name:
+    if (
+        name in {".env", ".venv", "env", "venv", ".virtualenv", "virtualenv"}
+        and env_path.parent.name
+    ):
         name = env_path.parent.name
     return _truncate_text(name, width)
 
