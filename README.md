@@ -19,7 +19,7 @@
     <img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-222222?logo=githubpages" />
   </a>
   <a href="https://pepy.tech/projects/envoic">
-    <img alt="PyPI Downloads" src="https://static.pepy.tech/personalized-badge/envoic?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads" />
+    <img alt="PyPI Downloads" src="https://static.pepy.tech/personalized-badge/envoic?period=total&units=INTERNATIONAL_SYSTEM&left_color=GREY&right_color=GREEN&left_text=downloads" />
   </a>
 </p>
 
