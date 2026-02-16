@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from .artifacts import SAFETY_TEXT
+from .artifacts import CAREFUL_NOTES, SAFETY_TEXT
 from .models import ArtifactSummary, EnvInfo, SafetyLevel, ScanResult
 from .utils import (
     VENV_DIR_NAMES,
@@ -230,7 +230,15 @@ def format_report(
     if deep and any(
         item.safety == SafetyLevel.CAREFUL for item in result.artifact_summary
     ):
-        lines.append("  * *.egg-info: editable installs depend on these")
+        careful_patterns = {
+            item.pattern
+            for item in result.artifact_summary
+            if item.safety == SafetyLevel.CAREFUL
+        }
+        for pattern in sorted(careful_patterns):
+            note = CAREFUL_NOTES.get(pattern)
+            if note:
+                lines.append(f"  * {pattern}: {note}")
         lines.append("─" * 58)
     if not deep:
         lines.append("  (run with --deep to include size data)")
