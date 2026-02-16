@@ -150,6 +150,12 @@ def scan(
         "--artifacts/--no-artifacts",
         help="Include Python artifact detection.",
     ),
+    artifact: bool = typer.Option(
+        False,
+        "--artifact",
+        "-a",
+        help="Show detailed artifact-level report sections.",
+    ),
     path_mode: PathMode = typer.Option(
         "name",
         "--path-mode",
@@ -174,7 +180,12 @@ def scan(
         raise typer.Exit(0)
 
     _print_output(
-        format_report(result, path_mode=path_mode, deep=deep),
+        format_report(
+            result,
+            path_mode=path_mode,
+            deep=deep,
+            show_artifact_details=artifact,
+        ),
         use_rich=rich_output,
     )
 
