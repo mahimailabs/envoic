@@ -2,7 +2,7 @@
 
 ## `envoic scan [PATH]`
 
-Scans a path for Python environments and prints the full TR-200 report.
+Scans a path for Python environments and Python artifacts, then prints the full TR-200 report.
 
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
@@ -11,6 +11,7 @@ Scans a path for Python environments and prints the full TR-200 report.
 | `--json` |  | `false` | Output JSON report |
 | `--stale-days` |  | `90` | Days threshold for stale marking |
 | `--include-dotenv` |  | `false` | Include plain `.env` directories |
+| `--artifacts/--no-artifacts` |  | `true` | Enable/disable Python artifact detection |
 | `--path-mode` |  | `name` | Path column rendering: `name`, `relative`, `absolute` |
 | `--rich` |  | `false` | Use rich-rendered output |
 
@@ -19,6 +20,7 @@ Examples:
 ```bash
 envoic scan .
 envoic scan ~/projects --deep
+envoic scan ~/projects --no-artifacts
 envoic scan . --json
 envoic scan . --path-mode relative
 ```
@@ -42,7 +44,7 @@ Prints a compact environments table without the full report wrapper.
 
 ## `envoic manage [PATH]`
 
-Interactively select and delete environments.
+Interactively select and delete environments and grouped artifact categories.
 
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|

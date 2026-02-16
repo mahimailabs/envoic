@@ -25,7 +25,7 @@
 
 ---
 
-Discover Python virtual environments and report them in a compact terminal layout.
+Discover Python virtual environments and Python disk artifacts in a compact terminal layout.
 
 
 > [!WARNING]
@@ -55,8 +55,9 @@ $ uvx envoic scan .
 
 ## 1. Scan
 
-Scan the current directory for Python virtual environments.
-Use `--depth` to control recursion and `--deep` to include size/package metadata.
+Scan the current directory for Python virtual environments and artifact directories/files
+(`__pycache__`, `.mypy_cache`, `.tox`, `dist/`, `build/`, and more).
+Use `--depth` to control recursion and `--deep` to include size metadata.
 
 <img src="https://raw.githubusercontent.com/mahimailabs/envoic/main/assets/scan_sample.png" alt="envoic scan command output" width="900" />
 
@@ -88,6 +89,8 @@ Delete stale environments in batch mode (supports `--dry-run` and confirmation).
 
 ```bash
 $ envoic scan [PATH]
+$ envoic scan ~/projects --deep
+$ envoic scan ~/projects --no-artifacts
 
 $ envoic list [PATH]
 

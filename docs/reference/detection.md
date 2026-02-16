@@ -42,3 +42,22 @@ Each detected environment carries a `signals` list that records matched checks, 
 - `activate-script`
 
 This makes detection decisions inspectable and scriptable.
+
+## Artifact detection
+
+The scanner also detects Python ecosystem artifacts during the same filesystem walk:
+
+- Bytecode: `__pycache__/`, `*.pyc`, `*.pyo`
+- Tool caches: `.mypy_cache/`, `.pytest_cache/`, `.ruff_cache/`
+- Test envs: `.tox/`, `.nox/`
+- Build artifacts: `dist/`, `build/`, `.eggs/`, `*.egg-info/`
+- Coverage/notebook: `.ipynb_checkpoints/`, `htmlcov/`, `.coverage`
+
+Safety tiers are reported per pattern:
+
+- `always_safe`: regenerated automatically
+- `usually_safe`: usually fine to remove, may require rebuild
+- `careful`: may break editable installs or take time to recreate
+
+`build/` and `dist/` are only treated as Python artifacts when their parent directory
+looks like a Python project (`pyproject.toml`, `setup.py`, or `setup.cfg` present).

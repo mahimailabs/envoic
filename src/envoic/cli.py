@@ -9,14 +9,24 @@ from pathlib import Path
 import typer
 
 from . import __version__
+from .artifacts import summarize_artifacts, summarize_with_empty_patterns
 from .detector import activation_hint, detect_environment, list_top_packages
 from .manager import (
+    confirm_careful_artifacts,
     confirm_deletion,
     delete_environments,
-    interactive_select,
+    flatten_artifact_summary,
+    interactive_select_with_artifacts,
     print_deletion_report,
 )
-from .models import EnvInfo, EnvType, ScanResult, to_serializable_dict
+from .models import (
+    ArtifactInfo,
+    EnvInfo,
+    EnvType,
+    SafetyLevel,
+    ScanResult,
+    to_serializable_dict,
+)
 from .report import PathMode, format_info, format_list, format_report
 from .scanner import scan as scan_paths
 
@@ -30,12 +40,18 @@ def _build_scan_result(
     deep: bool,
     stale_days: int,
     include_dotenv: bool,
+    include_artifacts: bool = True,
 ) -> ScanResult:
     start = time.perf_counter()
-    candidates = scan_paths(path, max_depth=depth)
+    discovery = scan_paths(
+        path,
+        max_depth=depth,
+        include_artifacts=include_artifacts,
+        deep=deep,
+    )
 
     envs: list[EnvInfo] = []
-    for candidate in candidates:
+    for candidate in discovery.environments:
         env_info = detect_environment(
             candidate,
             deep=deep,
@@ -50,6 +66,7 @@ def _build_scan_result(
 
     duration = time.perf_counter() - start
     total_size_bytes = sum(env.size_bytes or 0 for env in envs)
+    artifacts = discovery.artifacts if include_artifacts else []
 
     return ScanResult(
         scan_path=path.resolve(),
@@ -59,6 +76,8 @@ def _build_scan_result(
         total_size_bytes=total_size_bytes,
         hostname=socket.gethostname(),
         timestamp=datetime.now(UTC),
+        artifacts=artifacts,
+        artifact_summary=summarize_artifacts(artifacts),
     )
 
 
@@ -75,7 +94,7 @@ def _print_output(text: str, use_rich: bool) -> None:
 
 
 def _confirm_and_delete(
-    selected: list[EnvInfo],
+    selected: list[EnvInfo | ArtifactInfo],
     *,
     scan_root: Path,
     initial_total: int,
@@ -126,6 +145,11 @@ def scan(
     include_dotenv: bool = typer.Option(
         False, "--include-dotenv", help="Include plain .env directories."
     ),
+    include_artifacts: bool = typer.Option(
+        True,
+        "--artifacts/--no-artifacts",
+        help="Include Python artifact detection.",
+    ),
     path_mode: PathMode = typer.Option(
         "name",
         "--path-mode",
@@ -142,13 +166,17 @@ def scan(
         deep=deep,
         stale_days=stale_days,
         include_dotenv=include_dotenv,
+        include_artifacts=include_artifacts,
     )
 
     if json_output:
         typer.echo(json.dumps(to_serializable_dict(result), indent=2))
         raise typer.Exit(0)
 
-    _print_output(format_report(result, path_mode=path_mode), use_rich=rich_output)
+    _print_output(
+        format_report(result, path_mode=path_mode, deep=deep),
+        use_rich=rich_output,
+    )
 
 
 @app.command(name="list")
@@ -180,6 +208,7 @@ def list_environments(
         deep=deep,
         stale_days=stale_days,
         include_dotenv=include_dotenv,
+        include_artifacts=False,
     )
     _print_output(
         format_list(
@@ -241,26 +270,52 @@ def manage(
         deep=deep,
         stale_days=stale_days,
         include_dotenv=False,
+        include_artifacts=True,
     )
-    if not result.environments:
+    if not result.environments and not result.artifacts:
         typer.echo("No environments found.")
         raise typer.Exit(0)
 
     typer.echo("")
-    typer.echo(f"Found {len(result.environments)} Python environments.")
-    selected = interactive_select(
-        result.environments,
-        scan_root=result.scan_path,
-        stale_only=stale_only,
+    typer.echo(
+        f"Found {len(result.environments)} Python environments and {len(result.artifacts)} artifacts."
     )
-    if not selected:
-        typer.echo("Nothing selected.")
-        raise typer.Exit(0)
+
+    selected_envs: list[EnvInfo] = []
+    selected_artifact_groups = []
+    artifact_groups = summarize_with_empty_patterns(result.artifacts)
+    while True:
+        selected_envs, selected_artifact_groups = interactive_select_with_artifacts(
+            result.environments,
+            artifact_groups,
+            scan_root=result.scan_path,
+            stale_only=stale_only,
+        )
+        if not selected_envs and not selected_artifact_groups:
+            typer.echo("Nothing selected.")
+            raise typer.Exit(0)
+        careful_selected = [
+            item
+            for item in selected_artifact_groups
+            if item.safety == SafetyLevel.CAREFUL
+        ]
+        if not careful_selected:
+            break
+        if confirm_careful_artifacts(careful_selected):
+            break
+        typer.echo("")
+        typer.echo("Reopening selection...")
+        typer.echo("")
+
+    selected_items: list[EnvInfo | ArtifactInfo] = [
+        *selected_envs,
+        *flatten_artifact_summary(selected_artifact_groups),
+    ]
 
     _confirm_and_delete(
-        selected,
+        selected_items,
         scan_root=result.scan_path,
-        initial_total=len(result.environments),
+        initial_total=len(result.environments) + len(result.artifacts),
         dry_run=dry_run,
         yes=yes,
     )
@@ -291,6 +346,7 @@ def clean(
         deep=deep,
         stale_days=stale_days,
         include_dotenv=False,
+        include_artifacts=False,
     )
     selected = [env for env in result.environments if env.is_stale]
     if not selected:

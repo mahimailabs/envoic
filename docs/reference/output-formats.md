@@ -8,7 +8,8 @@ The default is a terminal-friendly TR-200 style report with fixed sections:
 
 - header summary
 - environments table
-- size distribution chart
+- artifacts summary table
+- size distribution charts (environments + artifacts)
 
 Best for direct human inspection in terminal sessions.
 
@@ -26,11 +27,15 @@ Top-level structure includes:
 - `scan_depth`
 - `duration_seconds`
 - `environments` (array)
+- `artifacts` (array)
+- `artifact_summary` (array, grouped by detected pattern)
 - `total_size_bytes`
 - `hostname`
 - `timestamp`
 
 Environment entries include fields like `path`, `env_type`, `python_version`, `size_bytes`, `package_count`, `is_stale`, and `signals`.
+
+Artifact entries include fields like `path`, `category`, `safety`, `size_bytes`, and `pattern_matched`.
 
 ## 3. Rich (`--rich`)
 
