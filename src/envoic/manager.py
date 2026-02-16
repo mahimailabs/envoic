@@ -352,10 +352,6 @@ def confirm_careful_artifacts(selected: list[ArtifactSummary]) -> bool:
         note = CAREFUL_NOTES.get(item.pattern)
         if note:
             typer.echo(f"    {note}")
-        if item.pattern == "*.egg-info":
-            typer.echo(
-                "    Deleting them breaks editable install metadata until re-run."
-            )
         typer.echo("")
 
     response = cast(

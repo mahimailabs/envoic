@@ -273,7 +273,7 @@ def manage(
         include_artifacts=True,
     )
     if not result.environments and not result.artifacts:
-        typer.echo("No environments found.")
+        typer.echo("No environments or artifacts found.")
         raise typer.Exit(0)
 
     typer.echo("")
