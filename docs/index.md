@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "envoic"
   text: "Environment Scanner"
-  tagline: "Discover and report every virtual environment on your system. Run now: uvx envoic scan ."
+  tagline: "Discover and report every virtual environment on your system."
   image:
     src: /envoic.png
     alt: "envoic"
