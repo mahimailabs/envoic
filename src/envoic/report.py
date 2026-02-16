@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from .models import EnvInfo, ScanResult
+from .artifacts import SAFETY_TEXT
+from .models import ArtifactSummary, EnvInfo, SafetyLevel, ScanResult
 from .utils import (
     VENV_DIR_NAMES,
     bar_chart,
@@ -119,13 +120,59 @@ def _size_distribution(
     return "\n".join(lines)
 
 
+def _artifact_table_header(deep: bool) -> str:
+    if deep:
+        return f"  {'Category':<22} {'Count':>6} {'Size':>8} {'Safety':>16}"
+    return f"  {'Category':<22} {'Count':>6} {'Safety':>16}"
+
+
+def _artifact_row(summary: ArtifactSummary, *, deep: bool) -> str:
+    if deep:
+        return (
+            f"  {summary.pattern:<22} "
+            f"{summary.count:>6} "
+            f"{format_size(summary.total_size_bytes):>8} "
+            f"{SAFETY_TEXT[summary.safety]:>16}"
+        )
+    return (
+        f"  {summary.pattern:<22} {summary.count:>6} {SAFETY_TEXT[summary.safety]:>16}"
+    )
+
+
+def _artifact_distribution(
+    artifact_summary: list[ArtifactSummary], *, deep: bool
+) -> str:
+    lines = ["SIZE DISTRIBUTION (Artifacts)"]
+    if not artifact_summary:
+        lines.append("  (no artifacts found)")
+        return "\n".join(lines)
+    if not deep:
+        lines.append("  (run with --deep to include size data)")
+        return "\n".join(lines)
+
+    sized = [item for item in artifact_summary if item.total_size_bytes > 0]
+    if not sized:
+        lines.append("  (no artifact size data)")
+        return "\n".join(lines)
+
+    max_size = max(item.total_size_bytes for item in sized)
+    for item in sized:
+        lines.append(
+            f"  {bar_chart(item.total_size_bytes, max_size, width=24)} {item.pattern:<20} {format_size(item.total_size_bytes):>6}"
+        )
+    return "\n".join(lines)
+
+
 def format_report(
     result: ScanResult,
     *,
     title: str = "ENVOIC - Python Environment Report",
     path_mode: PathMode = "name",
+    deep: bool = False,
 ) -> str:
     stale_count = sum(1 for env in result.environments if env.is_stale)
+    artifact_count = sum(item.count for item in result.artifact_summary)
+    artifact_total_size = sum(item.total_size_bytes for item in result.artifact_summary)
 
     lines: list[str] = []
     lines.append(_box_top())
@@ -139,8 +186,14 @@ def format_report(
     lines.append(_row("Duration", f"{result.duration_seconds:.2f}s"))
     lines.append(_box_mid())
     lines.append(_row("Envs Found", str(len(result.environments))))
-    lines.append(_row("Total Size", format_size(result.total_size_bytes)))
+    lines.append(
+        _row("Env Size", format_size(result.total_size_bytes) if deep else "-")
+    )
     lines.append(_row("Stale >90d", str(stale_count)))
+    lines.append(_row("Artifacts Found", str(artifact_count)))
+    lines.append(
+        _row("Artifact Size", format_size(artifact_total_size) if deep else "-")
+    )
     lines.append(_box_bottom())
     lines.append("")
     lines.append("ENVIRONMENTS")
@@ -163,6 +216,32 @@ def format_report(
             )
 
     lines.append("─" * 58)
+    lines.append("")
+    lines.append("ARTIFACTS")
+    lines.append("─" * 58)
+    lines.append(_artifact_table_header(deep))
+    lines.append("─" * 58)
+    if not result.artifact_summary:
+        lines.append("  (no artifacts found)")
+    else:
+        for summary in result.artifact_summary:
+            lines.append(_artifact_row(summary, deep=deep))
+    lines.append("─" * 58)
+    if deep and any(
+        item.safety == SafetyLevel.CAREFUL for item in result.artifact_summary
+    ):
+        lines.append("  * *.egg-info: editable installs depend on these")
+        lines.append("─" * 58)
+    if not deep:
+        lines.append("  (run with --deep to include size data)")
+        lines.append("─" * 58)
+    lines.append("")
+    lines.append(
+        _artifact_distribution(
+            result.artifact_summary,
+            deep=deep,
+        )
+    )
     lines.append("")
     lines.append(
         _size_distribution(

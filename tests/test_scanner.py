@@ -17,7 +17,8 @@ def test_scan_finds_named_and_pyvenv_dirs(tmp_path: Path) -> None:
     pyvenv_only.mkdir(parents=True)
     (pyvenv_only / "pyvenv.cfg").write_text("version = 3.11.0\n", encoding="utf-8")
 
-    found = scan(tmp_path, max_depth=4)
+    discovery = scan(tmp_path, max_depth=4)
+    found = discovery.environments
 
     assert named.resolve() in found
     assert pyvenv_only.resolve() in found
@@ -28,8 +29,8 @@ def test_scan_respects_depth(tmp_path: Path) -> None:
     deep_env.mkdir(parents=True)
     _touch(deep_env / "bin" / "activate")
 
-    shallow = scan(tmp_path, max_depth=2)
-    deep = scan(tmp_path, max_depth=5)
+    shallow = scan(tmp_path, max_depth=2).environments
+    deep = scan(tmp_path, max_depth=5).environments
 
     assert deep_env.resolve() not in shallow
     assert deep_env.resolve() in deep
@@ -44,7 +45,7 @@ def test_scan_skips_git_and_node_modules(tmp_path: Path) -> None:
     node_env.mkdir(parents=True)
     _touch(node_env / "bin" / "activate")
 
-    found = scan(tmp_path, max_depth=5)
+    found = scan(tmp_path, max_depth=5).environments
 
     assert git_env.resolve() not in found
     assert node_env.resolve() not in found
