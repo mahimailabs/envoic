@@ -169,6 +169,7 @@ def format_report(
     title: str = "ENVOIC - Python Environment Report",
     path_mode: PathMode = "name",
     deep: bool = False,
+    show_artifact_details: bool = False,
 ) -> str:
     stale_count = sum(1 for env in result.environments if env.is_stale)
     artifact_count = sum(item.count for item in result.artifact_summary)
@@ -217,40 +218,49 @@ def format_report(
 
     lines.append("─" * 58)
     lines.append("")
-    lines.append("ARTIFACTS")
-    lines.append("─" * 58)
-    lines.append(_artifact_table_header(deep))
-    lines.append("─" * 58)
-    if not result.artifact_summary:
-        lines.append("  (no artifacts found)")
-    else:
-        for summary in result.artifact_summary:
-            lines.append(_artifact_row(summary, deep=deep))
-    lines.append("─" * 58)
-    if deep and any(
-        item.safety == SafetyLevel.CAREFUL for item in result.artifact_summary
-    ):
-        careful_patterns = {
-            item.pattern
-            for item in result.artifact_summary
-            if item.safety == SafetyLevel.CAREFUL
-        }
-        for pattern in sorted(careful_patterns):
-            note = CAREFUL_NOTES.get(pattern)
-            if note:
-                lines.append(f"  * {pattern}: {note}")
+    if show_artifact_details:
+        lines.append("ARTIFACTS")
         lines.append("─" * 58)
-    if not deep:
-        lines.append("  (run with --deep to include size data)")
+        lines.append(_artifact_table_header(deep))
         lines.append("─" * 58)
-    lines.append("")
-    lines.append(
-        _artifact_distribution(
-            result.artifact_summary,
-            deep=deep,
+        if not result.artifact_summary:
+            lines.append("  (no artifacts found)")
+        else:
+            for summary in result.artifact_summary:
+                lines.append(_artifact_row(summary, deep=deep))
+        lines.append("─" * 58)
+        if deep and any(
+            item.safety == SafetyLevel.CAREFUL for item in result.artifact_summary
+        ):
+            careful_patterns = {
+                item.pattern
+                for item in result.artifact_summary
+                if item.safety == SafetyLevel.CAREFUL
+            }
+            for pattern in sorted(careful_patterns):
+                note = CAREFUL_NOTES.get(pattern)
+                if note:
+                    lines.append(f"  * {pattern}: {note}")
+            lines.append("─" * 58)
+        if not deep:
+            lines.append("  (run with --deep to include size data)")
+            lines.append("─" * 58)
+        lines.append("")
+        lines.append(
+            _artifact_distribution(
+                result.artifact_summary,
+                deep=deep,
+            )
         )
-    )
-    lines.append("")
+        lines.append("")
+    else:
+        lines.append("ARTIFACT DETAILS")
+        lines.append("─" * 58)
+        lines.append(
+            "  (hidden by default; run with --artifact to show detailed breakdown)"
+        )
+        lines.append("─" * 58)
+        lines.append("")
     lines.append(
         _size_distribution(
             result.environments, path_mode=path_mode, base_path=result.scan_path

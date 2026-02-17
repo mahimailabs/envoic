@@ -12,6 +12,7 @@ Scans a path for Python environments and Python artifacts, then prints the full 
 | `--stale-days` |  | `90` | Days threshold for stale marking |
 | `--include-dotenv` |  | `false` | Include plain `.env` directories |
 | `--artifacts/--no-artifacts` |  | `true` | Enable/disable Python artifact detection |
+| `--show-artifacts` | `-a` | `false` | Show detailed artifact-level sections in report output |
 | `--path-mode` |  | `name` | Path column rendering: `name`, `relative`, `absolute` |
 | `--rich` |  | `false` | Use rich-rendered output |
 
@@ -20,6 +21,8 @@ Examples:
 ```bash
 envoic scan .
 envoic scan ~/projects --deep
+envoic scan ~/projects --deep --show-artifacts
+envoic scan ~/projects --deep -a
 envoic scan ~/projects --no-artifacts
 envoic scan . --json
 envoic scan . --path-mode relative
