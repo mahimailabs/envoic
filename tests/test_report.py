@@ -85,3 +85,54 @@ def test_format_list_relative_paths() -> None:
     text = format_list([env], path_mode="relative", base_path=Path("/tmp"))
     assert "project" in text
     assert "project/.venv" not in text
+
+
+def test_format_report_show_artifact_details_false() -> None:
+    """Test that artifact details are hidden by default."""
+    env = EnvInfo(
+        path=Path("/tmp/project/.venv"),
+        env_type=EnvType.VENV,
+        python_version="3.12.1",
+        size_bytes=1024 * 1024,
+        modified=datetime.now(UTC),
+    )
+    result = ScanResult(
+        scan_path=Path("/tmp"),
+        scan_depth=5,
+        duration_seconds=1.2,
+        environments=[env],
+        total_size_bytes=1024 * 1024,
+        hostname="host-a",
+        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=UTC),
+    )
+
+    text = format_report(result, show_artifact_details=False)
+
+    assert "ARTIFACT DETAILS" in text
+    assert "hidden by default" in text
+    assert "run with --show-artifacts" in text.lower() or "run with --artifact" in text.lower()
+
+
+def test_format_report_show_artifact_details_true() -> None:
+    """Test that artifact details are shown when flag is enabled."""
+    env = EnvInfo(
+        path=Path("/tmp/project/.venv"),
+        env_type=EnvType.VENV,
+        python_version="3.12.1",
+        size_bytes=1024 * 1024,
+        modified=datetime.now(UTC),
+    )
+    result = ScanResult(
+        scan_path=Path("/tmp"),
+        scan_depth=5,
+        duration_seconds=1.2,
+        environments=[env],
+        total_size_bytes=1024 * 1024,
+        hostname="host-a",
+        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=UTC),
+    )
+
+    text = format_report(result, show_artifact_details=True)
+
+    assert "ARTIFACTS" in text
+    assert "hidden by default" not in text

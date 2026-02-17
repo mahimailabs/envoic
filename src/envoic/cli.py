@@ -150,9 +150,9 @@ def scan(
         "--artifacts/--no-artifacts",
         help="Include Python artifact detection.",
     ),
-    artifact: bool = typer.Option(
+    show_artifacts: bool = typer.Option(
         False,
-        "--artifact",
+        "--show-artifacts",
         "-a",
         help="Show detailed artifact-level report sections.",
     ),
@@ -184,7 +184,7 @@ def scan(
             result,
             path_mode=path_mode,
             deep=deep,
-            show_artifact_details=artifact,
+            show_artifact_details=show_artifacts,
         ),
         use_rich=rich_output,
     )
