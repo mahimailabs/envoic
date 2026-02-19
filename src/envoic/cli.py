@@ -379,6 +379,13 @@ def clean(
         yes=yes,
     )
 
+def test_conflicting_artifact_flags_error():
+    result = runner.invoke(
+        app,
+        ["scan", "--show-artifacts", "--no-artifacts"],
+    )
+    assert result.exit_code != 0
+    assert "cannot be used together" in result.output.lower()
 
 def main() -> None:
     """Console-script entrypoint."""
