@@ -174,6 +174,12 @@ def scan(
         include_dotenv=include_dotenv,
         include_artifacts=include_artifacts,
     )
+    if show_artifacts and not include_artifacts:
+    typer.echo(
+        "Error: --show-artifacts cannot be used together with --no-artifacts.",
+        err=True,
+    )
+    raise typer.Exit(code=1)
 
     if json_output:
         typer.echo(json.dumps(to_serializable_dict(result), indent=2))
@@ -373,6 +379,13 @@ def clean(
         yes=yes,
     )
 
+def test_conflicting_artifact_flags_error():
+    result = runner.invoke(
+        app,
+        ["scan", "--show-artifacts", "--no-artifacts"],
+    )
+    assert result.exit_code != 0
+    assert "cannot be used together" in result.output.lower()
 
 def main() -> None:
     """Console-script entrypoint."""
