@@ -45,6 +45,9 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.version.raw-options]
+root = "../.."
+
 [tool.hatch.build.hooks.vcs]
 version-file = "src/envoic/_version.py"
 
