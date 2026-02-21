@@ -21,6 +21,7 @@ from .manager import (
 )
 from .models import (
     ArtifactInfo,
+    ArtifactSummary,
     EnvInfo,
     EnvType,
     SafetyLevel,
@@ -293,7 +294,7 @@ def manage(
     )
 
     selected_envs: list[EnvInfo] = []
-    selected_artifact_groups = []
+    selected_artifact_groups: list[ArtifactSummary] = []
     artifact_groups = summarize_with_empty_patterns(result.artifacts)
     while True:
         selected_envs, selected_artifact_groups = interactive_select_with_artifacts(
@@ -365,8 +366,9 @@ def clean(
         raise typer.Exit(0)
 
     typer.echo(f"Found {len(selected)} stale environments.")
+    selected_items: list[EnvInfo | ArtifactInfo] = [*selected]
     _confirm_and_delete(
-        selected,
+        selected_items,
         scan_root=result.scan_path,
         initial_total=len(result.environments),
         dry_run=dry_run,
