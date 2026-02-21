@@ -257,7 +257,7 @@ def format_report(
         lines.append("ARTIFACT DETAILS")
         lines.append("─" * 58)
         lines.append(
-            "  (hidden by default; run with --artifact to show detailed breakdown)"
+            "  (hidden by default; run with --show-artifacts to show detailed breakdown)"
         )
         lines.append("─" * 58)
         lines.append("")
