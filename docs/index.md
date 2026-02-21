@@ -4,32 +4,61 @@ layout: home
 hero:
   name: "envoic"
   text: "Environment Scanner"
-  tagline: "Discover and report every virtual environment on your system."
+  tagline: "Discover and manage Python virtualenvs and JavaScript node_modules."
   image:
     src: /envoic.png
     alt: "envoic"
   actions:
     - theme: brand
-      text: "Get Started"
+      text: "Python Guide"
       link: /guide/getting-started
     - theme: alt
-      text: "View on GitHub"
-      link: https://github.com/mahimailabs/envoic
+      text: "JavaScript Guide"
+      link: /guide/js-getting-started
 
 ---
 
-<div class="scan-command">
-  <!-- <p class="scan-command-label">Quick run</p> -->
-  <div class="scan-command-ring">
-    <pre><code>uvx envoic scan .</code></pre>
+<div class="scan-command-grid">
+  <div class="scan-command">
+    <p class="scan-command-subtitle">Python</p>
+    <div class="scan-command-ring">
+      <pre><code>uvx envoic scan .</code></pre>
+    </div>
+  </div>
+  <div class="scan-command">
+    <p class="scan-command-subtitle">JavaScript</p>
+    <div class="scan-command-ring">
+      <pre><code>npx envoic scan .</code></pre>
+    </div>
   </div>
 </div>
 
 <style>
+.scan-command-grid {
+  width: min(920px, 92vw);
+  margin: 0.75rem auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
 .scan-command {
-  width: min(520px, 46vw);
-  min-width: 280px;
-  margin: 1.5rem auto 0;
+  min-width: 0;
+  width: 340px;
+}
+
+.scan-command-subtitle {
+  margin: 0 0 0.45rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--vp-c-text-2);
+}
+
+.scan-command-grid .scan-command:first-child {
+  margin-left: -28px;
 }
 
 .scan-command-label {
@@ -59,7 +88,7 @@ hero:
 
 .scan-command pre {
   margin: 0;
-  padding: 1rem 1.15rem;
+  padding: 0.9rem 1rem;
   border-radius: 13px;
   border: 0;
   background:
@@ -71,6 +100,9 @@ hero:
     var(--vp-c-bg-soft);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
   overflow: auto;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
 }
 
 .scan-command code {
@@ -84,9 +116,19 @@ hero:
 }
 
 @media (max-width: 768px) {
-  .scan-command {
+  .scan-command-grid {
     width: calc(100vw - 2.5rem);
-    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .scan-command {
+    width: 100%;
+  }
+
+  .scan-command-grid .scan-command:first-child {
+    margin-left: 0;
   }
 
   .scan-command pre {
@@ -108,5 +150,17 @@ hero:
   .scan-command-ring {
     animation: none;
   }
+}
+
+.VPHomeHero .actions .VPButton.alt {
+  background-color: #facc15;
+  border-color: #facc15;
+  color: #1f2937;
+}
+
+.VPHomeHero .actions .VPButton.alt:hover {
+  background-color: #eab308;
+  border-color: #eab308;
+  color: #111827;
 }
 </style>
