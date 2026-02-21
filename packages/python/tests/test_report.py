@@ -110,10 +110,7 @@ def test_format_report_show_artifact_details_false() -> None:
 
     assert "ARTIFACT DETAILS" in text
     assert "hidden by default" in text
-    assert (
-        "run with --show-artifacts" in text.lower()
-        or "run with --artifact" in text.lower()
-    )
+    assert "run with --show-artifacts" in text.lower()
 
 
 def test_format_report_show_artifact_details_true() -> None:
