@@ -70,17 +70,27 @@ hero:
 
 .scan-command-ring {
   --ring-angle: 0deg;
+  --ring-muted: color-mix(in srgb, var(--vp-c-divider) 78%, transparent);
+  --ring-active: var(--vp-c-brand-1);
   padding: 1px;
   border-radius: 14px;
   background:
     conic-gradient(
       from var(--ring-angle),
-      color-mix(in srgb, var(--vp-c-brand-1) 20%, var(--vp-c-divider)) 0deg 290deg,
-      color-mix(in srgb, var(--vp-c-brand-1) 95%, white) 322deg 342deg,
-      color-mix(in srgb, var(--vp-c-brand-1) 20%, var(--vp-c-divider)) 360deg
+      var(--ring-muted) 0deg 290deg,
+      color-mix(in srgb, var(--ring-active) 95%, white) 322deg 342deg,
+      var(--ring-muted) 360deg
     );
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
   animation: border-sweep 3s linear infinite;
+}
+
+.scan-command-grid .scan-command:first-child .scan-command-ring {
+  --ring-active: var(--vp-button-brand-bg, #3451b2);
+}
+
+.scan-command-grid .scan-command:last-child .scan-command-ring {
+  --ring-active: #facc15;
 }
 
 .scan-command pre {
