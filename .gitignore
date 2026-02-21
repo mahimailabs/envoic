@@ -206,9 +206,6 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Generated version file
-src/envoic/_version.py
-
 # OS generated files
 .DS_Store
 
@@ -216,3 +213,18 @@ src/envoic/_version.py
 docs/node_modules/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+
+# Monorepo - Python
+packages/python/.venv/
+packages/python/dist/
+packages/python/build/
+packages/python/*.egg-info/
+packages/python/src/envoic/_version.py
+
+# Monorepo - JavaScript
+packages/js/node_modules/
+packages/js/dist/
+packages/js/.cache/
+
+# old generated path ignored for safety
+src/envoic/_version.py
