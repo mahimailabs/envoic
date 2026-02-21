@@ -81,7 +81,7 @@ export function registerCommands(program: Command): void {
   program
     .command("info")
     .argument("<nodeModulesPath>", "path to node_modules directory")
-    .action(async (targetPath) => {
+    .action((targetPath) => {
       const abs = path.resolve(targetPath);
       if (path.basename(abs) !== "node_modules" || !fs.existsSync(abs)) {
         console.error(`Not a recognized node_modules path: ${targetPath}`);
@@ -158,8 +158,4 @@ export function registerCommands(program: Command): void {
       }
       await confirmAndDelete(selected, result.scanPath, result.environments.length, options.dryRun, options.yes);
     });
-
-  program.command("version").action(() => {
-    console.log("0.1.0");
-  });
 }

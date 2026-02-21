@@ -117,7 +117,7 @@ export async function confirmDeletion(
   selected.forEach((item, idx) => {
     const size = item.sizeBytes ?? 0;
     total += size;
-    const p = "packageManager" in item ? normalizeDisplayPath(item.path, scanRoot) : normalizeDisplayPath(item.path, scanRoot);
+    const p = normalizeDisplayPath(item.path, scanRoot);
     console.log(`  ${String(idx + 1).padEnd(3, " ")} ${p.padEnd(42, " ")} ${formatSize(size).padStart(6, " ")}`);
   });
   console.log(`\n  Total: ${formatSize(total)} will be freed`);
@@ -167,7 +167,12 @@ export function deleteSelected(
       continue;
     }
 
-    if (!fs.existsSync(target) && !fs.lstatSync(path.dirname(target)).isDirectory()) {
+    try {
+      if (!fs.existsSync(target) && !fs.lstatSync(path.dirname(target)).isDirectory()) {
+        summary.skippedCount += 1;
+        continue;
+      }
+    } catch {
       summary.skippedCount += 1;
       continue;
     }
@@ -195,15 +200,17 @@ export function deleteSelected(
   return summary;
 }
 
-export function printDeletionReport(summary: DeletionSummary, initialTotal: number): void {
+export function printDeletionReport(summary: DeletionSummary, initialTotal: number, items: Array<EnvInfo | ArtifactInfo> = []): void {
+  const hasEnvs = items.some((i) => "packageManager" in i);
+  const label = hasEnvs ? "environment(s)" : items.length > 0 ? "artifact(s)" : "item(s)";
   const remaining = Math.max(0, initialTotal - summary.deletedCount);
   const freed = summary.dryRun ? summary.wouldFreeBytes : summary.bytesFreed;
   console.log("─".repeat(58));
   if (summary.dryRun) console.log("  DRY RUN SUMMARY");
-  console.log(`  Deleted:   ${summary.deletedCount} environments`);
+  console.log(`  Deleted:   ${summary.deletedCount} ${label}`);
   console.log(`  Failed:    ${summary.failedCount}`);
   console.log(`  Skipped:   ${summary.skippedCount}`);
   console.log(`  Freed:     ${formatSize(freed)}`);
-  console.log(`  Remaining: ${remaining} environments`);
+  console.log(`  Remaining: ${remaining} ${label}`);
   console.log("─".repeat(58));
 }

@@ -15,7 +15,7 @@ export interface ScanOptions {
 }
 
 const SKIP_NAMES = new Set([".git", ".hg", ".svn"]);
-const ALLOWED_HIDDEN = new Set([".next", ".nuxt", ".turbo", ".swc", ".output", ".cache"]);
+const ALLOWED_HIDDEN = new Set([".next", ".nuxt", ".turbo", ".swc", ".output", ".cache", ".parcel-cache", ".webpack"]);
 
 function dirSizeBytes(targetPath: string): number {
   let total = 0;
@@ -68,10 +68,16 @@ export function scan(options: ScanOptions): ScanResult {
         const artifact = matchArtifact(entry, current, path.resolve(next));
         if (artifact) {
           if (!seenArtifact.has(artifact.path)) {
-            if (options.deep) artifact.sizeBytes = dirSizeBytes(artifact.path);
+            if (options.deep) {
+              // Use file stat for files, recursive walk for directories
+              artifact.sizeBytes = entry.isFile()
+                ? fs.statSync(path.resolve(next)).size
+                : dirSizeBytes(artifact.path);
+            }
             artifacts.push(artifact);
             seenArtifact.add(artifact.path);
           }
+          // Don't recurse into artifact directories — they've already been matched
           if (entry.isDirectory()) continue;
         }
       }
@@ -103,6 +109,7 @@ export function scan(options: ScanOptions): ScanResult {
   return {
     scanPath,
     scanDepth: options.depth,
+    staleDays: options.staleDays,
     durationSeconds,
     environments: environments.sort((a, b) => a.path.localeCompare(b.path)),
     totalSizeBytes,
