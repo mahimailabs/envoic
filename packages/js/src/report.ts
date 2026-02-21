@@ -138,7 +138,12 @@ export function formatInfo(env: EnvInfo, topPackages: Array<{ name: string; size
 export function topLargestPackages(nodeModulesPath: string, limit = 10): Array<{ name: string; size: number }> {
   const resolvedPath = path.resolve(nodeModulesPath);
   const result: Array<{ name: string; size: number }> = [];
-  const direct = fs.readdirSync(resolvedPath, { withFileTypes: true });
+  let direct: fs.Dirent[];
+  try {
+    direct = fs.readdirSync(resolvedPath, { withFileTypes: true });
+  } catch {
+    return [];
+  }
   for (const entry of direct) {
     if (!entry.isDirectory()) continue;
     if (entry.name.startsWith(".")) continue;
