@@ -1,11 +1,6 @@
 name: JavaScript CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'packages/js/**'
-      - '.github/workflows/js.yml'
   pull_request:
     paths:
       - 'packages/js/**'
