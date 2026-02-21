@@ -38,7 +38,7 @@ Discover Python virtual environments and Python disk artifacts in a compact term
 Run without installing:
 
 ```bash
-$ uvx envoic scan .
+uvx envoic scan .
 ```
 
 > NOTE: JavaScript version is available as `npx envoic scan .` - see [JavaScript](../js/README.md)
@@ -46,11 +46,11 @@ $ uvx envoic scan .
 Install:
 
 ```bash
-$ uv tool install envoic
+uv tool install envoic
 
 # or
 
-$ pipx install envoic
+pipx install envoic
 ```
 
 
@@ -113,11 +113,11 @@ Read more at [Documentation](https://mahimailabs.github.io/envoic/)
 ## Local Development
 
 ```bash
-$ uv sync --group dev
+uv sync --group dev
 
-$ uv run pytest
+uv run pytest
 
-$ uv run python -m envoic.cli scan . --deep --path-mode name
+uv run python -m envoic.cli scan . --deep --path-mode name
 ```
 
 ## License
