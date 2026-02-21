@@ -146,7 +146,7 @@ export function topLargestPackages(nodeModulesPath: string, limit = 10): Array<{
     const stack = [full];
     while (stack.length > 0) {
       const current = stack.pop() as string;
-      let children: import("node:fs").Dirent[] = [];
+      let children: import("node:fs").Dirent[];
       try {
         children = fs.readdirSync(current, { withFileTypes: true });
       } catch {
