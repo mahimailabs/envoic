@@ -37,7 +37,7 @@ function sizeForDelete(target: string): number {
   const stack = [target];
   while (stack.length > 0) {
     const current = stack.pop() as string;
-    let entries: fs.Dirent[] = [];
+    let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(current, { withFileTypes: true });
     } catch {

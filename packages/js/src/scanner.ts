@@ -22,7 +22,7 @@ function dirSizeBytes(targetPath: string): number {
   const stack = [targetPath];
   while (stack.length > 0) {
     const current = stack.pop() as string;
-    let entries: fs.Dirent[] = [];
+    let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(current, { withFileTypes: true });
     } catch {
@@ -54,7 +54,7 @@ export function scan(options: ScanOptions): ScanResult {
   function walk(current: string, depth: number): void {
     if (depth > options.depth) return;
 
-    let entries: fs.Dirent[] = [];
+    let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(current, { withFileTypes: true });
     } catch {
