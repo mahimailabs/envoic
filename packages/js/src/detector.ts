@@ -46,7 +46,12 @@ function countTopLevelPackages(nodeModulesPath: string): number {
 }
 
 function pathSizeBytes(targetPath: string): number {
-  const stat = fs.lstatSync(targetPath);
+  let stat: fs.Stats;
+  try {
+    stat = fs.lstatSync(targetPath);
+  } catch {
+    return 0;
+  }
   if (stat.isSymbolicLink()) return stat.size;
   if (stat.isFile()) return stat.size;
   if (!stat.isDirectory()) return 0;
@@ -98,7 +103,22 @@ export function detectEnvironment(
   if (hasPnpmMarker) signals.push("pnpm-marker");
   if (hasPackageJson) signals.push("package.json");
 
-  const stat = fs.statSync(nodeModulesPath);
+  let stat: fs.Stats;
+  try {
+    stat = fs.statSync(nodeModulesPath);
+  } catch {
+    return {
+      path: nodeModulesPath,
+      packageManager: detectPackageManager(nodeModulesPath),
+      packageCount: deep ? countTopLevelPackages(nodeModulesPath) : null,
+      sizeBytes: deep ? pathSizeBytes(nodeModulesPath) : null,
+      created: null,
+      modified: null,
+      isStale: false,
+      isOutdated: false,
+      signals: [...signals, "stat-unavailable"],
+    };
+  }
   const created = stat.birthtime ?? null;
   const modified = stat.mtime ?? null;
   const staleThreshold = Date.now() - staleDays * 86400000;
