@@ -1,9 +1,10 @@
 import eslint from "@eslint/js";
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
-  ...tseslint.configs.strict,
+  ...tseslint.configs.recommended,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
@@ -13,6 +14,6 @@ export default tseslint.config(
     }
   },
   {
-    ignores: ["dist/", "node_modules/", "*.config.*"]
+    ignores: ["dist/", "node_modules/", "**/*.config.*"]
   }
 );

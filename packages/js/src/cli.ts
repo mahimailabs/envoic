@@ -26,7 +26,7 @@ async function confirmAndDelete(
   const confirmed = await confirmDeletion(selected, scanRoot, dryRun, yes);
   if (dryRun) {
     const summary = deleteSelected(selected, scanRoot, true, false);
-    printDeletionReport(summary, initialTotal);
+    printDeletionReport(summary, initialTotal, selected);
     return;
   }
   if (!confirmed) {
@@ -34,7 +34,7 @@ async function confirmAndDelete(
     return;
   }
   const summary = deleteSelected(selected, scanRoot, false);
-  printDeletionReport(summary, initialTotal);
+  printDeletionReport(summary, initialTotal, selected);
 }
 
 export function registerCommands(program: Command): void {
