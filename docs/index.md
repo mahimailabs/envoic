@@ -37,6 +37,7 @@ hero:
 .scan-command-grid {
   width: min(920px, 92vw);
   margin: 0.75rem auto 0;
+  padding-left: 0;
   display: flex;
   justify-content: space-between;
   align-items: stretch;
@@ -55,10 +56,6 @@ hero:
   text-transform: uppercase;
   font-weight: 700;
   color: var(--vp-c-text-2);
-}
-
-.scan-command-grid .scan-command:first-child {
-  margin-left: -28px;
 }
 
 .scan-command-label {
@@ -121,14 +118,11 @@ hero:
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.8rem;
+    padding-left: 0;
   }
 
   .scan-command {
     width: 100%;
-  }
-
-  .scan-command-grid .scan-command:first-child {
-    margin-left: 0;
   }
 
   .scan-command pre {
@@ -153,14 +147,14 @@ hero:
 }
 
 .VPHomeHero .actions .VPButton.alt {
-  background-color: #facc15;
-  border-color: #facc15;
-  color: #1f2937;
+  background-color: var(--vp-c-yellow-1, #facc15);
+  border-color: var(--vp-c-yellow-1, #facc15);
+  color: var(--vp-c-neutral-inverse, #1f2937);
 }
 
 .VPHomeHero .actions .VPButton.alt:hover {
-  background-color: #eab308;
-  border-color: #eab308;
-  color: #111827;
+  background-color: var(--vp-c-yellow-2, #eab308);
+  border-color: var(--vp-c-yellow-2, #eab308);
+  color: var(--vp-c-neutral-inverse, #111827);
 }
 </style>
