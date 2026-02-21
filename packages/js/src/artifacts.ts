@@ -55,6 +55,8 @@ export function matchArtifact(
   fullPath: string,
 ): ArtifactInfo | null {
   for (const pattern of ARTIFACT_PATTERNS) {
+    if (!pattern.name && !pattern.suffix) continue;
+
     if (pattern.type === "dir" && !entry.isDirectory()) continue;
     if (pattern.type === "file" && !entry.isFile()) continue;
 

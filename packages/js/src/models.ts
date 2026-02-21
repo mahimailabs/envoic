@@ -39,6 +39,7 @@ export interface ArtifactSummary {
 export interface ScanResult {
   scanPath: string;
   scanDepth: number;
+  staleDays: number;
   durationSeconds: number;
   environments: EnvInfo[];
   totalSizeBytes: number;

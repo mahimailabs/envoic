@@ -8,7 +8,7 @@ export function detectPackageManager(nodeModulesPath: string): PackageManager {
 
   if (fs.existsSync(path.join(parent, "pnpm-lock.yaml"))) return "pnpm";
   if (fs.existsSync(path.join(parent, "yarn.lock"))) return "yarn";
-  if (fs.existsSync(path.join(parent, "bun.lockb"))) return "bun";
+  if (fs.existsSync(path.join(parent, "bun.lockb")) || fs.existsSync(path.join(parent, "bun.lock"))) return "bun";
   if (fs.existsSync(path.join(parent, "package-lock.json"))) return "npm";
 
   if (fs.existsSync(path.join(nodeModulesPath, ".modules.yaml"))) return "pnpm";

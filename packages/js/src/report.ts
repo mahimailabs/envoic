@@ -56,7 +56,7 @@ export function formatReport(result: ScanResult, deep = false): string {
   lines.push(boxMid());
   lines.push(row("NM Found", String(result.environments.length)));
   lines.push(row("Total Size", formatSize(result.totalSizeBytes)));
-  lines.push(row("Stale >90d", String(staleCount)));
+  lines.push(row("Stale", `>${result.staleDays}d: ${staleCount}`));
   lines.push(row("Outdated", String(outdatedCount)));
   lines.push(row("Artifacts", String(artifactCount)));
   lines.push(row("Art Size", deep ? formatSize(artifactSize) : "-"));
@@ -136,34 +136,58 @@ export function formatInfo(env: EnvInfo, topPackages: Array<{ name: string; size
 }
 
 export function topLargestPackages(nodeModulesPath: string, limit = 10): Array<{ name: string; size: number }> {
-  const entries = path.resolve(nodeModulesPath);
+  const resolvedPath = path.resolve(nodeModulesPath);
   const result: Array<{ name: string; size: number }> = [];
-  const direct = fs.readdirSync(entries, { withFileTypes: true });
+  const direct = fs.readdirSync(resolvedPath, { withFileTypes: true });
   for (const entry of direct) {
     if (!entry.isDirectory()) continue;
-    const full = path.join(entries, entry.name);
-    let size = 0;
-    const stack = [full];
-    while (stack.length > 0) {
-      const current = stack.pop() as string;
-      let children: import("node:fs").Dirent[];
+
+    // Handle scoped packages (@scope/pkg)
+    if (entry.name.startsWith("@")) {
+      const scopePath = path.join(resolvedPath, entry.name);
+      let scopedEntries: fs.Dirent[];
       try {
-        children = fs.readdirSync(current, { withFileTypes: true });
+        scopedEntries = fs.readdirSync(scopePath, { withFileTypes: true });
       } catch {
         continue;
       }
-      for (const child of children) {
-        const childPath = path.join(current, child.name);
-        try {
-          const st = fs.lstatSync(childPath);
-          if (st.isSymbolicLink() || st.isFile()) size += st.size;
-          else if (st.isDirectory()) stack.push(childPath);
-        } catch {
-          continue;
-        }
+      for (const scoped of scopedEntries) {
+        if (!scoped.isDirectory()) continue;
+        const full = path.join(scopePath, scoped.name);
+        const size = measureDirSize(full);
+        result.push({ name: `${entry.name}/${scoped.name}`, size });
       }
+      continue;
     }
+
+    const full = path.join(resolvedPath, entry.name);
+    const size = measureDirSize(full);
     result.push({ name: entry.name, size });
   }
   return result.sort((a, b) => b.size - a.size).slice(0, limit);
+}
+
+function measureDirSize(dirPath: string): number {
+  let size = 0;
+  const stack = [dirPath];
+  while (stack.length > 0) {
+    const current = stack.pop() as string;
+    let children: fs.Dirent[];
+    try {
+      children = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const child of children) {
+      const childPath = path.join(current, child.name);
+      try {
+        const st = fs.lstatSync(childPath);
+        if (st.isSymbolicLink() || st.isFile()) size += st.size;
+        else if (st.isDirectory()) stack.push(childPath);
+      } catch {
+        continue;
+      }
+    }
+  }
+  return size;
 }
