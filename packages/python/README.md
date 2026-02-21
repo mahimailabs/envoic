@@ -92,19 +92,19 @@ Delete stale environments in batch mode (supports `--dry-run` and confirmation).
 ## Usage
 
 ```bash
-$ envoic scan [PATH]
-$ envoic scan ~/projects --deep
-$ envoic scan ~/projects --no-artifacts
+envoic scan [PATH]
+envoic scan ~/projects --deep
+envoic scan ~/projects --no-artifacts
 
-$ envoic list [PATH]
+envoic list [PATH]
 
-$ envoic manage [PATH]
+envoic manage [PATH]
 
-$ envoic clean [PATH]
+envoic clean [PATH]
 
-$ envoic info <ENV_PATH>
+envoic info <ENV_PATH>
 
-$ envoic version
+envoic version
 ```
 
 Read more at [Documentation](https://mahimailabs.github.io/envoic/)

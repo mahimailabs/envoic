@@ -146,15 +146,10 @@ hero:
   }
 }
 
-.VPHomeHero .actions .VPButton.alt {
-  background-color: var(--vp-c-yellow-1, #facc15);
-  border-color: var(--vp-c-yellow-1, #facc15);
-  color: var(--vp-c-neutral-inverse, #1f2937);
-}
-
-.VPHomeHero .actions .VPButton.alt:hover {
-  background-color: var(--vp-c-yellow-2, #eab308);
-  border-color: var(--vp-c-yellow-2, #eab308);
-  color: var(--vp-c-neutral-inverse, #111827);
+.VPHome {
+  --vp-button-alt-bg: #facc15;
+  --vp-button-alt-text: #1f2937;
+  --vp-button-alt-hover-bg: #eab308;
+  --vp-button-alt-hover-text: #111827;
 }
 </style>

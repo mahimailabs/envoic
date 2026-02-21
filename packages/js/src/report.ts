@@ -141,6 +141,7 @@ export function topLargestPackages(nodeModulesPath: string, limit = 10): Array<{
   const direct = fs.readdirSync(resolvedPath, { withFileTypes: true });
   for (const entry of direct) {
     if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith(".")) continue;
 
     // Handle scoped packages (@scope/pkg)
     if (entry.name.startsWith("@")) {
@@ -153,6 +154,7 @@ export function topLargestPackages(nodeModulesPath: string, limit = 10): Array<{
       }
       for (const scoped of scopedEntries) {
         if (!scoped.isDirectory()) continue;
+        if (scoped.name.startsWith(".")) continue;
         const full = path.join(scopePath, scoped.name);
         const size = measureDirSize(full);
         result.push({ name: `${entry.name}/${scoped.name}`, size });

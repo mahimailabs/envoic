@@ -20,13 +20,23 @@ export function detectPackageManager(nodeModulesPath: string): PackageManager {
 
 function countTopLevelPackages(nodeModulesPath: string): number {
   let count = 0;
-  const entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true });
+  let entries: fs.Dirent[];
+  try {
+    entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     if (entry.name.startsWith(".")) continue;
     if (entry.name.startsWith("@")) {
       const scopedPath = path.join(nodeModulesPath, entry.name);
-      const scoped = fs.readdirSync(scopedPath, { withFileTypes: true });
+      let scoped: fs.Dirent[];
+      try {
+        scoped = fs.readdirSync(scopedPath, { withFileTypes: true });
+      } catch {
+        continue;
+      }
       count += scoped.filter((item) => item.isDirectory()).length;
     } else {
       count += 1;

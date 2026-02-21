@@ -167,11 +167,9 @@ export function deleteSelected(
       continue;
     }
 
+    let targetStat: fs.Stats;
     try {
-      if (!fs.existsSync(target) && !fs.lstatSync(path.dirname(target)).isDirectory()) {
-        summary.skippedCount += 1;
-        continue;
-      }
+      targetStat = fs.lstatSync(target);
     } catch {
       summary.skippedCount += 1;
       continue;
@@ -179,8 +177,7 @@ export function deleteSelected(
 
     process.stdout.write(`Deleting ${normalizeDisplayPath(target, scanRoot)} ...`);
     try {
-      const st = fs.lstatSync(target);
-      if (st.isSymbolicLink()) fs.unlinkSync(target);
+      if (targetStat.isSymbolicLink()) fs.unlinkSync(target);
       else fs.rmSync(target, { recursive: true, force: false });
       summary.deletedCount += 1;
       summary.bytesFreed += size;
