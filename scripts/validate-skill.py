@@ -61,6 +61,7 @@ def main() -> int:
         if not adapter.exists():
             fail(f"missing adapter file: {adapter}")
 
+
     if not PYTHON_CLI.exists() or not JS_CLI.exists():
         fail("missing Python/JS CLI files for command validation")
     py_text = PYTHON_CLI.read_text()
