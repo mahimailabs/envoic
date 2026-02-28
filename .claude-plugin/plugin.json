@@ -1,0 +1,9 @@
+{
+  "name": "envoic",
+  "version": "0.0.9",
+  "description": "Scan, audit, and safely clean Python virtual environments, node_modules, and development artifacts.",
+  "author": "mahimailabs",
+  "skills": [
+    "skills/envoic"
+  ]
+}

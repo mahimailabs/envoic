@@ -13,6 +13,15 @@ OPENAI_YAML = ROOT / "skills/envoic/agents/openai.yaml"
 PYTHON_CLI = ROOT / "packages/python/src/envoic/cli.py"
 JS_CLI = ROOT / "packages/js/src/cli.ts"
 EXPECTED_COMMANDS = ("scan", "list", "info", "manage", "clean")
+REQUIRED_ADAPTERS = (
+    ROOT / ".cursorrules",
+    ROOT / ".cursor/rules/envoic.mdc",
+    ROOT / ".github/copilot-instructions.md",
+    ROOT / ".github/instructions/envoic.instructions.md",
+    ROOT / ".claude-plugin/plugins.yaml",
+    ROOT / ".claude-plugin/plugin.json",
+    ROOT / ".claude-plugin/marketplace.json",
+)
 
 
 def fail(msg: str) -> None:
@@ -48,6 +57,9 @@ def main() -> int:
         fail(
             "missing .agents/skills/envoic/SKILL.md (expected symlink/copy for Codex auto-discovery)"
         )
+    for adapter in REQUIRED_ADAPTERS:
+        if not adapter.exists():
+            fail(f"missing adapter file: {adapter}")
 
     if not PYTHON_CLI.exists() or not JS_CLI.exists():
         fail("missing Python/JS CLI files for command validation")
