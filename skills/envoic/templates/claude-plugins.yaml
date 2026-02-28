@@ -1,0 +1,7 @@
+# Generated from skills/envoic/templates/claude-plugins.yaml
+plugins:
+  - id: envoic-skill
+    name: envoic
+    description: Scan, audit, and clean up Python venvs, node_modules, and dev artifacts consuming disk space.
+    skills:
+      - skills/envoic
