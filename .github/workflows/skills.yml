@@ -1,0 +1,26 @@
+name: Skill CI
+
+on:
+  pull_request:
+    paths:
+      - 'skills/envoic/**'
+      - '.cursorrules'
+      - '.github/copilot-instructions.md'
+      - '.claude-plugin/plugins.yaml'
+      - '.agents/skills/envoic/**'
+      - 'scripts/sync-agent-instructions.py'
+      - 'scripts/validate-skill.py'
+      - '.github/workflows/skills.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate skill metadata and layout
+        run: python3 scripts/validate-skill.py
+      - name: Validate generated adapter files are in sync
+        run: python3 scripts/sync-agent-instructions.py --check
