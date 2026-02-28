@@ -46,10 +46,12 @@ envoic is available as an [Agent Skill](https://agentskills.io) for coding agent
 
 | Tool | Auto-detected file | Notes |
 |---|---|---|
-| Cursor | `.cursorrules` | Generated from `skills/envoic/templates/cursor.cursorrules` |
+| Cursor | `.cursor/rules/envoic.mdc` | Primary format (generated from `skills/envoic/templates/cursor-rule-envoic.mdc`) |
+| Cursor (legacy) | `.cursorrules` | Compatibility fallback |
 | GitHub Copilot | `.github/copilot-instructions.md` | Generated from `skills/envoic/templates/copilot-instructions.md` |
+| GitHub Copilot (scoped) | `.github/instructions/envoic.instructions.md` | Path-scoped instruction file |
 | OpenAI Codex | `.agents/skills/envoic/SKILL.md` | Symlink/copy of canonical skill |
-| Claude Code | `.claude-plugin/plugins.yaml` | Generated from `skills/envoic/templates/claude-plugins.yaml` |
+| Claude Code | `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` | Marketplace metadata + plugin manifest |
 
 Install from marketplace in Claude Code:
 
@@ -71,7 +73,20 @@ Sync generated adapter files after skill updates:
 python3 scripts/sync-agent-instructions.py
 ```
 
+Set an explicit release version when needed:
+
+```bash
+python3 scripts/sync-agent-instructions.py --version 0.1.0
+```
+
 If your environment does not support symlinks, copy `skills/envoic/` into `.agents/skills/envoic/`.
+
+Validate skill metadata and adapter drift:
+
+```bash
+python3 scripts/validate-skill.py
+python3 scripts/sync-agent-instructions.py --check
+```
 
 ## Docs
 

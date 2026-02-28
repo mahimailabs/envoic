@@ -1,0 +1,21 @@
+---
+description: Use envoic for environment cleanup, stale dependency audit, and disk-space recovery tasks.
+globs:
+  - "**/*"
+alwaysApply: false
+---
+
+When a user asks about disk cleanup, stale environments, `node_modules` bloat, ENOSPC, or broken Python/JS environments, use envoic workflows.
+
+Preferred flow:
+1. Run scan first (`uvx envoic scan <path>` or `npx envoic scan <path>`).
+2. Use `--deep` when size ranking is needed.
+3. Use `manage --dry-run` before any deletion.
+4. Warn for CAREFUL artifacts (`.tox/`, `.nox/`, `*.egg-info`).
+5. Never remove lock files or project manifests.
+
+Canonical references:
+- `skills/envoic/SKILL.md`
+- `skills/envoic/references/commands.md`
+- `skills/envoic/references/safety.md`
+- `skills/envoic/references/troubleshooting.md`

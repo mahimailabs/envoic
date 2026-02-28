@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    {
+      "name": "envoic",
+      "description": "Scan, audit, and clean stale Python/JavaScript environments and build artifacts.",
+      "source": "."
+    }
+  ]
+}
