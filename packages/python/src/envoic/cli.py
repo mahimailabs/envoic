@@ -11,6 +11,7 @@ import typer
 from . import __version__
 from .artifacts import summarize_artifacts, summarize_with_empty_patterns
 from .detector import activation_hint, detect_environment, list_top_packages
+from .health import check_health
 from .manager import (
     confirm_careful_artifacts,
     confirm_deletion,
@@ -24,11 +25,12 @@ from .models import (
     ArtifactSummary,
     EnvInfo,
     EnvType,
+    HealthResult,
     SafetyLevel,
     ScanResult,
     to_serializable_dict,
 )
-from .report import PathMode, format_info, format_list, format_report
+from .report import PathMode, format_health_report, format_info, format_list, format_report
 from .scanner import scan as scan_paths
 
 app = typer.Typer(help="Discover and report Python virtual environments.")
@@ -252,6 +254,53 @@ def info(
 def version() -> None:
     """Print envoic version."""
     typer.echo(__version__)
+
+
+@app.command()
+def health(
+    path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
+    depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
+    json_output: bool = typer.Option(
+        False, "--json", help="Output JSON report.", rich_help_panel="Output"
+    ),
+    stale_days: int = typer.Option(
+        90, "--stale-days", min=1, help="Mark env as stale after N days."
+    ),
+    include_dotenv: bool = typer.Option(
+        False, "--include-dotenv", help="Include plain .env directories."
+    ),
+    rich_output: bool = typer.Option(
+        False, "--rich", help="Use optional rich-rendered output."
+    ),
+) -> None:
+    """Check the health of discovered Python virtual environments."""
+    result = _build_scan_result(
+        path,
+        depth,
+        deep=False,
+        stale_days=stale_days,
+        include_dotenv=include_dotenv,
+        include_artifacts=False,
+    )
+
+    health_results: list[HealthResult] = [
+        check_health(env.path) for env in result.environments
+    ]
+
+    if json_output:
+        typer.echo(
+            json.dumps(
+                [to_serializable_dict(hr) for hr in health_results],
+                indent=2,
+            )
+        )
+        broken = any(hr.status.value == "broken" for hr in health_results)
+        raise typer.Exit(1 if broken else 0)
+
+    _print_output(format_health_report(health_results), use_rich=rich_output)
+
+    broken = any(hr.status.value == "broken" for hr in health_results)
+    raise typer.Exit(1 if broken else 0)
 
 
 @app.command()
