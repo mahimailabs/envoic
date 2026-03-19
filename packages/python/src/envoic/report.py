@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 from .artifacts import CAREFUL_NOTES, SAFETY_TEXT
-from .models import ArtifactSummary, EnvInfo, SafetyLevel, ScanResult
+from .models import ArtifactSummary, EnvInfo, HealthResult, HealthStatus, SafetyLevel, ScanResult
 from .utils import (
     VENV_DIR_NAMES,
     bar_chart,
@@ -286,6 +286,60 @@ def format_list(
     return "\n".join(lines)
 
 
+def format_health_report(results: list[HealthResult]) -> str:
+    """Render a USGC TR-200 style health check table for a list of HealthResults."""
+    HEALTH_WIDTH = 58
+    sep = "\u2500" * HEALTH_WIDTH
+
+    # Column widths
+    COL_PATH = 22
+    COL_STATUS = 8
+    COL_ISSUES = HEALTH_WIDTH - COL_PATH - COL_STATUS - 4  # 4 for spacing
+
+    _STATUS_LABEL = {
+        HealthStatus.OK: "OK",
+        HealthStatus.WARN: "WARN",
+        HealthStatus.BROKEN: "BROKEN",
+    }
+
+    def _path_label(env_path: Path) -> str:
+        name = env_path.name
+        from .utils import VENV_DIR_NAMES
+        if name in VENV_DIR_NAMES and env_path.parent.name:
+            name = env_path.parent.name
+        return _truncate_text(name, COL_PATH)
+
+    lines: list[str] = []
+    lines.append("ENVIRONMENT HEALTH CHECK")
+    lines.append(sep)
+    lines.append(
+        f"  {'Path':<{COL_PATH}} {'Status':<{COL_STATUS}} Issues"
+    )
+    lines.append(sep)
+
+    if not results:
+        lines.append("  (no environments found)")
+    else:
+        for result in sorted(results, key=lambda r: str(r.path)):
+            label = _path_label(result.path)
+            status_str = _STATUS_LABEL[result.status]
+            issues_str = "; ".join(result.issues) if result.issues else "-"
+            issues_str = _truncate_text(issues_str, COL_ISSUES)
+            lines.append(
+                f"  {label:<{COL_PATH}} {status_str:<{COL_STATUS}} {issues_str}"
+            )
+
+    lines.append(sep)
+
+    healthy = sum(1 for r in results if r.status == HealthStatus.OK)
+    warnings = sum(1 for r in results if r.status == HealthStatus.WARN)
+    broken = sum(1 for r in results if r.status == HealthStatus.BROKEN)
+    lines.append(
+        f"  Healthy: {healthy} | Warnings: {warnings} | Broken: {broken}"
+    )
+    return "\n".join(lines)
+
+
 def format_info(env: EnvInfo, top_packages: list[str], activation: str) -> str:
     lines: list[str] = []
     lines.append(_box_top())
@@ -325,6 +379,7 @@ __all__ = [
     "box_line",
     "bar_chart",
     "format_age",
+    "format_health_report",
     "format_info",
     "format_list",
     "format_report",
