@@ -1,4 +1,7 @@
-from ._version import __version__
+try:
+    from ._version import __version__
+except ModuleNotFoundError: 
+    __version__ = "dev"
 from .models import (
     ArtifactCategory,
     ArtifactInfo,
@@ -7,6 +10,9 @@ from .models import (
     EnvInfo,
     EnvInfoDict,
     EnvType,
+    HealthResult,
+    HealthResultDict,
+    HealthStatus,
     SafetyLevel,
     ScanResult,
     ScanResultDict,
@@ -22,6 +28,9 @@ __all__ = [
     "EnvInfo",
     "EnvInfoDict",
     "EnvType",
+    "HealthResult",
+    "HealthResultDict",
+    "HealthStatus",
     "SafetyLevel",
     "ScanResult",
     "ScanResultDict",
