@@ -14,6 +14,12 @@ class EnvType(StrEnum):
     UNKNOWN = "unknown"
 
 
+class HealthStatus(StrEnum):
+    OK = "ok"
+    WARN = "warn"
+    BROKEN = "broken"
+
+
 class SafetyLevel(StrEnum):
     ALWAYS_SAFE = "always_safe"
     USUALLY_SAFE = "usually_safe"
@@ -40,6 +46,15 @@ class EnvInfo:
     is_stale: bool = False
     has_pyvenv_cfg: bool = False
     signals: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class HealthResult:
+    """Result of a health check on a single virtual environment."""
+
+    path: Path
+    status: HealthStatus
+    issues: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -78,6 +93,7 @@ class ArtifactSummary:
 
 EnvTypeValue = Literal["venv", "conda", "dotenv_dir", "unknown"]
 SafetyLevelValue = Literal["always_safe", "usually_safe", "careful"]
+HealthStatusValue = Literal["ok", "warn", "broken"]
 ArtifactCategoryValue = Literal[
     "bytecode_cache",
     "tool_cache",
@@ -98,6 +114,12 @@ class EnvInfoDict(TypedDict):
     is_stale: bool
     has_pyvenv_cfg: bool
     signals: list[str]
+
+
+class HealthResultDict(TypedDict):
+    path: str
+    status: HealthStatusValue
+    issues: list[str]
 
 
 class ArtifactInfoDict(TypedDict):
@@ -144,7 +166,7 @@ def _serialize_value(value: Any) -> Any:
 
 
 def _to_serializable_dict(
-    data: ScanResult | EnvInfo | ArtifactInfo | ArtifactSummary,
+    data: ScanResult | EnvInfo | ArtifactInfo | ArtifactSummary | HealthResult,
 ) -> dict[str, Any]:
     return cast(dict[str, Any], _serialize_value(asdict(data)))
 
@@ -165,11 +187,15 @@ def to_serializable_dict(data: ArtifactInfo) -> ArtifactInfoDict: ...
 def to_serializable_dict(data: ArtifactSummary) -> ArtifactSummaryDict: ...
 
 
+@overload
+def to_serializable_dict(data: HealthResult) -> HealthResultDict: ...
+
+
 def to_serializable_dict(
-    data: EnvInfo | ScanResult | ArtifactInfo | ArtifactSummary,
-) -> EnvInfoDict | ScanResultDict | ArtifactInfoDict | ArtifactSummaryDict:
+    data: EnvInfo | ScanResult | ArtifactInfo | ArtifactSummary | HealthResult,
+) -> EnvInfoDict | ScanResultDict | ArtifactInfoDict | ArtifactSummaryDict | HealthResultDict:
     serialized = _to_serializable_dict(data)
     return cast(
-        EnvInfoDict | ScanResultDict | ArtifactInfoDict | ArtifactSummaryDict,
+        EnvInfoDict | ScanResultDict | ArtifactInfoDict | ArtifactSummaryDict | HealthResultDict,
         serialized,
     )
