@@ -68,7 +68,10 @@ def _pyvenv_issues(path: Path) -> list[str]:
     if not pyvenv_cfg.is_file():
         return ["missing pyvenv.cfg"]
 
-    data = parse_pyvenv_cfg(path)
+    try:
+        data = parse_pyvenv_cfg(path)
+    except OSError as err:
+        return [f"pyvenv.cfg unreadable: {err}"]
     home = data.get("home")
     if not home:
         return ["pyvenv.cfg missing home"]
@@ -87,6 +90,13 @@ def _activation_issues(path: Path) -> list[str]:
 
 
 def check_environment_health(env: EnvInfo) -> HealthCheck:
+    if not env.path.is_dir():
+        return HealthCheck(
+            path=env.path,
+            status="BROKEN",
+            issues=["environment directory missing or not a directory"],
+        )
+
     broken = _python_issues(env.path)
     warnings: list[str] = []
     if env.env_type != EnvType.CONDA:

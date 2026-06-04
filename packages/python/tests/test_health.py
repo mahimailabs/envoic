@@ -82,6 +82,34 @@ def test_check_environment_health_marks_missing_pyvenv_home_broken(
     ]
 
 
+def test_check_environment_health_marks_unreadable_pyvenv_cfg_broken(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    env_path = _make_venv(tmp_path, "unreadable")
+
+    def fail_parse(_: Path) -> dict[str, str]:
+        raise OSError("permission denied")
+
+    monkeypatch.setattr("envoic.health.parse_pyvenv_cfg", fail_parse)
+
+    check = check_environment_health(_env(env_path))
+
+    assert check.status == "BROKEN"
+    assert check.issues == ["pyvenv.cfg unreadable: permission denied"]
+
+
+def test_check_environment_health_marks_missing_env_directory_broken(
+    tmp_path: Path,
+) -> None:
+    env_path = tmp_path / "missing" / ".venv"
+
+    check = check_environment_health(_env(env_path))
+
+    assert check.status == "BROKEN"
+    assert check.issues == ["environment directory missing or not a directory"]
+
+
 def test_check_environment_health_does_not_require_pyvenv_cfg_for_conda(
     tmp_path: Path,
 ) -> None:
@@ -109,7 +137,7 @@ def test_check_environment_health_detects_dangling_python_symlink(
     check = check_environment_health(_env(env_path))
 
     assert check.status == "BROKEN"
-    assert "dangling symlink: bin" in check.issues[0]
+    assert check.issues == ["dangling symlink: bin/python"]
 
 
 def test_format_health_report_counts_statuses(tmp_path: Path) -> None:
