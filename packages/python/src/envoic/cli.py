@@ -28,7 +28,7 @@ from .models import (
     ScanResult,
     to_serializable_dict,
 )
-from .report import PathMode, format_info, format_list, format_report
+from .report import PathMode, SortMode, format_info, format_list, format_report
 from .scanner import scan as scan_paths
 
 app = typer.Typer(help="Discover and report Python virtual environments.")
@@ -162,6 +162,11 @@ def scan(
         "--path-mode",
         help="How to render environment path columns: name, relative, absolute.",
     ),
+    sort: SortMode = typer.Option(
+        "path",
+        "--sort",
+        help="Sort environment rows by path, size, age, or python.",
+    ),
     rich_output: bool = typer.Option(
         False, "--rich", help="Use optional rich-rendered output."
     ),
@@ -184,6 +189,7 @@ def scan(
         format_report(
             result,
             path_mode=path_mode,
+            sort=sort,
             deep=deep,
             show_artifact_details=show_artifacts,
         ),
@@ -209,6 +215,11 @@ def list_environments(
         "--path-mode",
         help="How to render environment path columns: name, relative, absolute.",
     ),
+    sort: SortMode = typer.Option(
+        "path",
+        "--sort",
+        help="Sort environment rows by path, size, age, or python.",
+    ),
     rich_output: bool = typer.Option(
         False, "--rich", help="Use optional rich-rendered output."
     ),
@@ -224,7 +235,10 @@ def list_environments(
     )
     _print_output(
         format_list(
-            result.environments, path_mode=path_mode, base_path=result.scan_path
+            result.environments,
+            path_mode=path_mode,
+            sort=sort,
+            base_path=result.scan_path,
         ),
         use_rich=rich_output,
     )

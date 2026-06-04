@@ -16,6 +16,7 @@ from .utils import (
 
 REPORT_WIDTH = 58
 PathMode = Literal["name", "relative", "absolute"]
+SortMode = Literal["path", "size", "age", "python"]
 
 
 def _box_top(width: int = REPORT_WIDTH) -> str:
@@ -98,6 +99,49 @@ def _table_row(
     )
 
 
+def _python_version_sort_key(version: str | None) -> tuple[bool, tuple[int, ...], str]:
+    if version is None:
+        return (True, (), "")
+
+    numeric_parts: list[int] = []
+    for part in version.split("."):
+        if not part.isdigit():
+            break
+        numeric_parts.append(int(part))
+
+    return (False, tuple(numeric_parts), version)
+
+
+def _sort_environments(environments: list[EnvInfo], sort: SortMode) -> list[EnvInfo]:
+    if sort == "size":
+        return sorted(
+            environments,
+            key=lambda item: (
+                item.size_bytes is None,
+                -(item.size_bytes or 0),
+                str(item.path),
+            ),
+        )
+    if sort == "age":
+        return sorted(
+            environments,
+            key=lambda item: (
+                item.modified is None,
+                item.modified.isoformat() if item.modified else "",
+                str(item.path),
+            ),
+        )
+    if sort == "python":
+        return sorted(
+            environments,
+            key=lambda item: (
+                *_python_version_sort_key(item.python_version),
+                str(item.path),
+            ),
+        )
+    return sorted(environments, key=lambda item: str(item.path))
+
+
 def _size_distribution(
     environments: list[EnvInfo], *, path_mode: PathMode, base_path: Path | None = None
 ) -> str:
@@ -168,6 +212,7 @@ def format_report(
     *,
     title: str = "ENVOIC - Python Environment Report",
     path_mode: PathMode = "name",
+    sort: SortMode = "path",
     deep: bool = False,
     show_artifact_details: bool = False,
 ) -> str:
@@ -205,7 +250,7 @@ def format_report(
     if not result.environments:
         lines.append("  (no environments found)")
     else:
-        sorted_envs = sorted(result.environments, key=lambda item: str(item.path))
+        sorted_envs = _sort_environments(result.environments, sort)
         for index, env in enumerate(sorted_envs, start=1):
             lines.append(
                 _table_row(
@@ -263,7 +308,9 @@ def format_report(
         lines.append("")
     lines.append(
         _size_distribution(
-            result.environments, path_mode=path_mode, base_path=result.scan_path
+            _sort_environments(result.environments, sort),
+            path_mode=path_mode,
+            base_path=result.scan_path,
         )
     )
 
@@ -274,12 +321,11 @@ def format_list(
     environments: list[EnvInfo],
     *,
     path_mode: PathMode = "name",
+    sort: SortMode = "path",
     base_path: Path | None = None,
 ) -> str:
     lines = [_table_header(), "─" * 58]
-    for index, env in enumerate(
-        sorted(environments, key=lambda item: str(item.path)), start=1
-    ):
+    for index, env in enumerate(_sort_environments(environments, sort), start=1):
         lines.append(_table_row(index, env, path_mode=path_mode, base_path=base_path))
     if len(lines) == 2:
         lines.append("  (no environments found)")
