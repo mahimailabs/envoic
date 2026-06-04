@@ -9,8 +9,14 @@ envoic is currently CLI-first and has no config file.
 - `--json` (default: `false`)
 - `--stale-days` (default: `90`)
 - `--include-dotenv` (default: `false`)
+- `--artifacts` / `--no-artifacts` (default: `--artifacts`)
+- `--show-artifacts`, `-a` (default: `false`)
 - `--path-mode` (default: `name`; options: `name`, `relative`, `absolute`)
 - `--rich` (default: `false`)
+
+Artifact detection is enabled by default for `scan`. Use `--no-artifacts` when
+you only want Python environments in the report. Use `--show-artifacts` to show
+the detailed artifact rows instead of the default summary placeholder.
 
 ## List command options
 
