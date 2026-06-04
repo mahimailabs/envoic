@@ -48,6 +48,30 @@ def test_format_report_structure() -> None:
     assert "project" in text
 
 
+def test_format_report_uses_scan_stale_threshold() -> None:
+    env = EnvInfo(
+        path=Path("/tmp/project/.venv"),
+        env_type=EnvType.VENV,
+        python_version="3.12.1",
+        is_stale=True,
+    )
+    result = ScanResult(
+        scan_path=Path("/tmp"),
+        scan_depth=5,
+        duration_seconds=1.2,
+        environments=[env],
+        total_size_bytes=0,
+        hostname="host-a",
+        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=UTC),
+        stale_days=30,
+    )
+
+    text = format_report(result)
+
+    assert "Stale >30d" in text
+    assert "Stale >90d" not in text
+
+
 def test_format_report_path_modes() -> None:
     env = EnvInfo(
         path=Path("/tmp/project/.venv"),

@@ -51,6 +51,7 @@ class ScanResult:
     total_size_bytes: int
     hostname: str
     timestamp: datetime
+    stale_days: int = 90
     artifacts: list[ArtifactInfo] = field(default_factory=list)
     artifact_summary: list[ArtifactSummary] = field(default_factory=list)
 
@@ -125,6 +126,7 @@ class ScanResultDict(TypedDict):
     total_size_bytes: int
     hostname: str
     timestamp: str
+    stale_days: int
     artifacts: list[ArtifactInfoDict]
     artifact_summary: list[ArtifactSummaryDict]
 

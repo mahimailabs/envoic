@@ -77,6 +77,7 @@ def _build_scan_result(
         total_size_bytes=total_size_bytes,
         hostname=socket.gethostname(),
         timestamp=datetime.now(UTC),
+        stale_days=stale_days,
         artifacts=artifacts,
         artifact_summary=summarize_artifacts(artifacts),
     )
