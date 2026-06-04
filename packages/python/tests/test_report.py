@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from envoic.models import EnvInfo, EnvType, ScanResult
+from envoic.models import EnvInfo, EnvType, ScanResult, to_serializable_dict
 from envoic.report import bar_chart, format_age, format_list, format_report, format_size
 
 
@@ -70,6 +70,7 @@ def test_format_report_uses_scan_stale_threshold() -> None:
 
     assert "Stale >30d" in text
     assert "Stale >90d" not in text
+    assert to_serializable_dict(result)["stale_days"] == 30
 
 
 def test_format_report_path_modes() -> None:
