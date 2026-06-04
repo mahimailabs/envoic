@@ -11,6 +11,7 @@ import typer
 from . import __version__
 from .artifacts import summarize_artifacts, summarize_with_empty_patterns
 from .detector import activation_hint, detect_environment, list_top_packages
+from .health import check_environments_health, format_health_report, health_to_dict
 from .manager import (
     confirm_careful_artifacts,
     confirm_deletion,
@@ -226,6 +227,41 @@ def list_environments(
         format_list(
             result.environments, path_mode=path_mode, base_path=result.scan_path
         ),
+        use_rich=rich_output,
+    )
+
+
+@app.command()
+def health(
+    path: Path = typer.Argument(Path("."), exists=True, file_okay=False, dir_okay=True),
+    depth: int = typer.Option(5, "--depth", "-d", min=1, help="Max directory depth."),
+    json_output: bool = typer.Option(
+        False, "--json", help="Output JSON report.", rich_help_panel="Output"
+    ),
+    include_dotenv: bool = typer.Option(
+        False, "--include-dotenv", help="Include plain .env directories."
+    ),
+    rich_output: bool = typer.Option(
+        False, "--rich", help="Use optional rich-rendered output."
+    ),
+) -> None:
+    """Check discovered Python environments for common breakage."""
+    result = _build_scan_result(
+        path,
+        depth,
+        deep=False,
+        stale_days=90,
+        include_dotenv=include_dotenv,
+        include_artifacts=False,
+    )
+    checks = check_environments_health(result.environments)
+
+    if json_output:
+        typer.echo(json.dumps([health_to_dict(check) for check in checks], indent=2))
+        raise typer.Exit(0)
+
+    _print_output(
+        format_health_report(checks, base_path=result.scan_path),
         use_rich=rich_output,
     )
 
