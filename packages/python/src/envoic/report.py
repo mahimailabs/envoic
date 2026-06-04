@@ -190,7 +190,7 @@ def format_report(
     lines.append(
         _row("Env Size", format_size(result.total_size_bytes) if deep else "-")
     )
-    lines.append(_row("Stale >90d", str(stale_count)))
+    lines.append(_row(f"Stale >{result.stale_days}d", str(stale_count)))
     lines.append(_row("Artifacts Found", str(artifact_count)))
     lines.append(
         _row("Artifact Size", format_size(artifact_total_size) if deep else "-")
