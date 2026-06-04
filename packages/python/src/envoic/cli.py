@@ -157,6 +157,9 @@ def scan(
         "-a",
         help="Show detailed artifact-level report sections.",
     ),
+    limit: int | None = typer.Option(
+        None, "--limit", min=1, help="Cap displayed environments."
+    ),
     path_mode: PathMode = typer.Option(
         "name",
         "--path-mode",
@@ -186,6 +189,7 @@ def scan(
             path_mode=path_mode,
             deep=deep,
             show_artifact_details=show_artifacts,
+            limit=limit,
         ),
         use_rich=rich_output,
     )
@@ -203,6 +207,9 @@ def list_environments(
     ),
     include_dotenv: bool = typer.Option(
         False, "--include-dotenv", help="Include plain .env directories."
+    ),
+    limit: int | None = typer.Option(
+        None, "--limit", min=1, help="Cap displayed environments."
     ),
     path_mode: PathMode = typer.Option(
         "name",
@@ -224,7 +231,10 @@ def list_environments(
     )
     _print_output(
         format_list(
-            result.environments, path_mode=path_mode, base_path=result.scan_path
+            result.environments,
+            path_mode=path_mode,
+            base_path=result.scan_path,
+            limit=limit,
         ),
         use_rich=rich_output,
     )

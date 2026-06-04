@@ -22,6 +22,16 @@ def test_bar_chart() -> None:
     assert bar_chart(100, 100, width=10) == "[██████████]"
 
 
+def _env(name: str, *, size_bytes: int = 1024) -> EnvInfo:
+    return EnvInfo(
+        path=Path(f"/tmp/{name}/.venv"),
+        env_type=EnvType.VENV,
+        python_version="3.12.1",
+        size_bytes=size_bytes,
+        modified=datetime.now(UTC),
+    )
+
+
 def test_format_report_structure() -> None:
     env = EnvInfo(
         path=Path("/tmp/project/.venv"),
@@ -46,6 +56,29 @@ def test_format_report_structure() -> None:
     assert "ENVIRONMENTS" in text
     assert "SIZE DISTRIBUTION" in text
     assert "project" in text
+
+
+def test_format_report_limits_displayed_environments() -> None:
+    result = ScanResult(
+        scan_path=Path("/tmp"),
+        scan_depth=5,
+        duration_seconds=1.2,
+        environments=[
+            _env("project-alpha", size_bytes=1024),
+            _env("project-beta", size_bytes=2048),
+            _env("project-gamma", size_bytes=4096),
+        ],
+        total_size_bytes=7168,
+        hostname="host-a",
+        timestamp=datetime(2026, 2, 9, 12, 0, 0, tzinfo=UTC),
+    )
+
+    text = format_report(result, deep=True, limit=2)
+
+    assert "3" in next(line for line in text.splitlines() if "Envs Found" in line)
+    assert "project-alpha" in text
+    assert "project-beta" in text
+    assert "project-gamma" not in text
 
 
 def test_format_report_path_modes() -> None:
@@ -85,6 +118,21 @@ def test_format_list_relative_paths() -> None:
     text = format_list([env], path_mode="relative", base_path=Path("/tmp"))
     assert "project" in text
     assert "project/.venv" not in text
+
+
+def test_format_list_limits_displayed_environments() -> None:
+    text = format_list(
+        [
+            _env("project-alpha"),
+            _env("project-beta"),
+            _env("project-gamma"),
+        ],
+        limit=1,
+    )
+
+    assert "project-alpha" in text
+    assert "project-beta" not in text
+    assert "project-gamma" not in text
 
 
 def test_format_report_show_artifact_details_false() -> None:
