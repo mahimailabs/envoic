@@ -12,6 +12,15 @@ Find scattered `.venv` directories, Python caches, build artifacts, and more.
 uvx envoic scan ~/projects
 ```
 
+Artifact scanning is enabled by default for Python scans. Use
+`--no-artifacts` to report only environments, or `--show-artifacts` to expand
+the artifact summary into detailed rows:
+
+```bash
+uvx envoic scan ~/projects --show-artifacts
+uvx envoic scan ~/projects --no-artifacts
+```
+
 [Python package →](./packages/python/)
 
 ## JavaScript
