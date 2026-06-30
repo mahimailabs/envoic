@@ -168,6 +168,13 @@ def scan(
     ),
 ) -> None:
     """Scan a filesystem path for Python environments."""
+    if show_artifacts and not include_artifacts:
+        typer.echo(
+            "Error: --show-artifacts cannot be used together with --no-artifacts.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
     result = _build_scan_result(
         path,
         depth,
