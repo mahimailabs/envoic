@@ -26,7 +26,12 @@ class HealthCheck:
 
 
 def _python_candidates(path: Path) -> tuple[Path, ...]:
-    return (path / "bin" / "python", path / "Scripts" / "python.exe")
+    return (
+        path / "bin" / "python",
+        path / "Scripts" / "python.exe",
+        # Conda places the interpreter at the environment root on Windows.
+        path / "python.exe",
+    )
 
 
 def _activate_candidates(path: Path) -> tuple[Path, ...]:
@@ -42,31 +47,33 @@ def _relative_issue_path(path: Path, candidate: Path) -> str:
 
 def _existing_python(path: Path) -> Path | None:
     for candidate in _python_candidates(path):
-        if candidate.exists():
+        if candidate.is_file():
             return candidate
     return None
 
 
 def _python_issues(path: Path) -> list[str]:
-    issues: list[str] = []
-    for candidate in _python_candidates(path):
-        if candidate.is_symlink() and not candidate.exists():
-            issues.append(f"dangling symlink: {_relative_issue_path(path, candidate)}")
-            return issues
-
     python_bin = _existing_python(path)
-    if python_bin is None:
-        issues.append("missing python executable")
-    elif not os.access(python_bin, os.X_OK):
-        issues.append(f"not executable: {_relative_issue_path(path, python_bin)}")
+    if python_bin is not None:
+        if not os.access(python_bin, os.X_OK):
+            return [f"not executable: {_relative_issue_path(path, python_bin)}"]
+        return []
 
-    return issues
+    # No working interpreter: a dangling symlink explains it better than a
+    # bare "missing" message, but only report it once we know nothing works.
+    for candidate in _python_candidates(path):
+        if candidate.is_symlink():
+            return [f"dangling symlink: {_relative_issue_path(path, candidate)}"]
+
+    return ["missing python executable"]
 
 
-def _pyvenv_issues(path: Path) -> list[str]:
+def _pyvenv_warnings(path: Path) -> list[str]:
     pyvenv_cfg = path / "pyvenv.cfg"
     if not pyvenv_cfg.is_file():
-        return ["missing pyvenv.cfg"]
+        # pyvenv.cfg is optional: legacy virtualenv-created envs run fine
+        # without it, and the detector already accepts such environments.
+        return []
 
     try:
         data = parse_pyvenv_cfg(path)
@@ -97,10 +104,17 @@ def check_environment_health(env: EnvInfo) -> HealthCheck:
             issues=["environment directory missing or not a directory"],
         )
 
+    # A plain `.env` directory holds dotenv files, not an interpreter, so the
+    # venv-shaped checks below do not apply to it.
+    if env.env_type == EnvType.DOTENV_DIR:
+        return HealthCheck(path=env.path, status="OK", issues=[])
+
     broken = _python_issues(env.path)
     warnings: list[str] = []
-    if env.env_type != EnvType.CONDA:
-        broken.extend(_pyvenv_issues(env.path))
+    if env.env_type == EnvType.VENV:
+        # pyvenv.cfg and activation scripts are venv concepts; their absence or
+        # staleness is informational (WARN), not a broken interpreter (BROKEN).
+        warnings.extend(_pyvenv_warnings(env.path))
         warnings.extend(_activation_issues(env.path))
 
     if broken:
@@ -118,7 +132,11 @@ def check_environments_health(environments: list[EnvInfo]) -> list[HealthCheck]:
 
 
 def health_to_dict(check: HealthCheck) -> HealthCheckDict:
-    return {"path": str(check.path), "status": check.status, "issues": check.issues}
+    return {
+        "path": str(check.path),
+        "status": check.status,
+        "issues": list(check.issues),
+    }
 
 
 def _truncate_text(text: str, width: int) -> str:
