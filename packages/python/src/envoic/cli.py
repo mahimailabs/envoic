@@ -255,15 +255,17 @@ def health(
         include_artifacts=False,
     )
     checks = check_environments_health(result.environments)
+    exit_code = 1 if any(check.status == "BROKEN" for check in checks) else 0
 
     if json_output:
         typer.echo(json.dumps([health_to_dict(check) for check in checks], indent=2))
-        raise typer.Exit(0)
+        raise typer.Exit(exit_code)
 
     _print_output(
         format_health_report(checks, base_path=result.scan_path),
         use_rich=rich_output,
     )
+    raise typer.Exit(exit_code)
 
 
 @app.command()
