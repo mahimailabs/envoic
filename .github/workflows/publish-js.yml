@@ -63,7 +63,10 @@ jobs:
             exit 1
           fi
 
-          npm version "$VERSION" --no-git-tag-version
+          # --allow-same-version: package.json may already be at the release
+          # version (it is committed in-repo), and `npm version` otherwise
+          # errors with "Version not changed" and aborts the publish.
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
 
       - name: Show publish metadata
         run: |
