@@ -21,6 +21,9 @@ uvx envoic scan ~/projects --show-artifacts
 uvx envoic scan ~/projects --no-artifacts
 ```
 
+`--show-artifacts` needs artifact detection enabled, so combining it with
+`--no-artifacts` is rejected with an error.
+
 [Python package →](./packages/python/)
 
 ## JavaScript

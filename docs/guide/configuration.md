@@ -16,7 +16,9 @@ envoic is currently CLI-first and has no config file.
 
 Artifact detection is enabled by default for `scan`. Use `--no-artifacts` when
 you only want Python environments in the report. Use `--show-artifacts` to show
-the detailed artifact rows instead of the default summary placeholder.
+the detailed artifact rows instead of the default summary placeholder. Because
+`--show-artifacts` needs artifact detection, combining it with `--no-artifacts`
+is rejected with an error.
 
 ## List command options
 
