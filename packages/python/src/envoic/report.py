@@ -170,10 +170,12 @@ def format_report(
     path_mode: PathMode = "name",
     deep: bool = False,
     show_artifact_details: bool = False,
+    limit: int | None = None,
 ) -> str:
     stale_count = sum(1 for env in result.environments if env.is_stale)
     artifact_count = sum(item.count for item in result.artifact_summary)
     artifact_total_size = sum(item.total_size_bytes for item in result.artifact_summary)
+    display_envs = sorted(result.environments, key=lambda item: str(item.path))[:limit]
 
     lines: list[str] = []
     lines.append(_box_top())
@@ -205,8 +207,7 @@ def format_report(
     if not result.environments:
         lines.append("  (no environments found)")
     else:
-        sorted_envs = sorted(result.environments, key=lambda item: str(item.path))
-        for index, env in enumerate(sorted_envs, start=1):
+        for index, env in enumerate(display_envs, start=1):
             lines.append(
                 _table_row(
                     index,
@@ -263,7 +264,7 @@ def format_report(
         lines.append("")
     lines.append(
         _size_distribution(
-            result.environments, path_mode=path_mode, base_path=result.scan_path
+            display_envs, path_mode=path_mode, base_path=result.scan_path
         )
     )
 
@@ -275,10 +276,11 @@ def format_list(
     *,
     path_mode: PathMode = "name",
     base_path: Path | None = None,
+    limit: int | None = None,
 ) -> str:
     lines = [_table_header(), "─" * 58]
     for index, env in enumerate(
-        sorted(environments, key=lambda item: str(item.path)), start=1
+        sorted(environments, key=lambda item: str(item.path))[:limit], start=1
     ):
         lines.append(_table_row(index, env, path_mode=path_mode, base_path=base_path))
     if len(lines) == 2:
