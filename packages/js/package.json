@@ -1,6 +1,6 @@
 {
   "name": "envoic",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Discover and manage node modules and JS artifacts on your system",
   "type": "module",
   "bin": {
