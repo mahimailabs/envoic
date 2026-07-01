@@ -172,6 +172,8 @@ def scan(
     ),
 ) -> None:
     """Scan a filesystem path for Python environments."""
+    # Sorting by size needs size metadata, which is only computed with --deep.
+    deep = deep or sort == "size"
     result = _build_scan_result(
         path,
         depth,
@@ -225,6 +227,8 @@ def list_environments(
     ),
 ) -> None:
     """Print a compact environments table."""
+    # Sorting by size needs size metadata, which is only computed with --deep.
+    deep = deep or sort == "size"
     result = _build_scan_result(
         path,
         depth,

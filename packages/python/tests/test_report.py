@@ -227,3 +227,26 @@ def test_format_report_show_artifact_details_true() -> None:
 
     assert "ARTIFACTS" in text
     assert "hidden by default" not in text
+
+
+def test_scan_sort_size_implies_deep(tmp_path: Path) -> None:
+    from typer.testing import CliRunner
+
+    from envoic.cli import app
+
+    for name, kb in (("aaa", 1), ("zzz", 64)):
+        venv = tmp_path / name / ".venv"
+        venv.mkdir(parents=True)
+        (venv / "pyvenv.cfg").write_text(
+            "home = /usr/bin\nversion = 3.12.1\n", encoding="utf-8"
+        )
+        (venv / "blob.bin").write_bytes(b"\0" * (kb * 1024))
+
+    result = CliRunner().invoke(
+        app, ["scan", str(tmp_path), "--sort", "size", "--no-artifacts"]
+    )
+
+    assert result.exit_code == 0
+    # Larger env (zzz) sorts before the smaller (aaa) even though --deep was
+    # not passed: sorting by size must imply the size computation.
+    assert result.output.index("zzz") < result.output.index("aaa")
